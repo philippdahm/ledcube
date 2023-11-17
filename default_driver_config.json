@@ -1,0 +1,12 @@
+{
+    "pins": [
+        18,21
+    ],
+    "freq_hz": 800000,
+    "dma": 10,
+    "PWM channel": [
+        0,1
+    ],
+    "strip type": null,
+    "connection": "scan"
+}
