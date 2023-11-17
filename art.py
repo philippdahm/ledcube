@@ -21,10 +21,9 @@ def seed_random_bottom(matrix,color=[0,255,0]):
     return matrix
     
 def postprocess_antialiasing(matrix):
-    # not implemented
-    return matrix
+    raise NotImplementedError
 
-def supersample_antialisaing(matrix_shape, sample_factor: float, func, **kwargs):
+def supersample_antialisaing(matrix_shape:tuple, sample_factor: int, func, **kwargs):
     supersample_shape = tuple(np.array(matrix_shape[:-1])*sample_factor) +(3,)
     tgrid =  np.meshgrid(
         np.linspace(-1,1,matrix_shape[0]),

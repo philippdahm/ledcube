@@ -35,7 +35,7 @@ if __name__ == '__main__':
     # plt.show()
     vis.save_animated(matrix_list, cdir+"test_wave2.gif" )
     
-    matrix_list2 = art.supersample_antialisaing(matrix_shape, 3, art.makeset_wave, frames=int(vis.fps/slowdown), coloring=[255,0,255])
+    matrix_list2 = art.supersample_antialisaing(matrix_shape, 10, art.makeset_wave, frames=int(vis.fps/slowdown), coloring=[255,0,255])
     a = vis.animate(matrix_list2)
     # plt.show()
     vis.save_animated(matrix_list2, cdir+"test_wave_supersampled.gif" )
