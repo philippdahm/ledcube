@@ -210,7 +210,7 @@ class Neopixel(Driver):
     
     
 if __name__ == '__main__':
-    cdir = "/home/tycho/Documents/art/Ledcube/"
+    cdir = "/home/tycho/Documents/art/ledcube/"
     
     shape = (4,3,5) #(12,12,28)
     matrix_shape = shape +(3,)

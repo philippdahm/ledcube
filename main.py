@@ -9,7 +9,7 @@ import drivers
 import art
 
 if __name__ == '__main__':
-    cdir = "/home/tycho/Documents/art/Ledcube/"
+    cdir = "/home/tycho/Documents/art/ledcube/"
     shape = (20,20,20) #(12,12,28)
     matrix_shape = shape +(3,)
     size = [3,3,1.4] # m side lengths of cube
@@ -30,6 +30,12 @@ if __name__ == '__main__':
     
     slowdown = 0.5
     matrix_list = art.makeset_wave(matrix_shape, frames=int(vis.fps/slowdown), coloring=[255,0,255])
+
     a = vis.animate(matrix_list)
     # plt.show()
     vis.save_animated(matrix_list, cdir+"test_wave2.gif" )
+    
+    matrix_list2 = art.supersample_antialisaing(matrix_shape, 3, art.makeset_wave, frames=int(vis.fps/slowdown), coloring=[255,0,255])
+    a = vis.animate(matrix_list2)
+    # plt.show()
+    vis.save_animated(matrix_list2, cdir+"test_wave_supersampled.gif" )

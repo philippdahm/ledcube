@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import cm
 import matplotlib.pyplot as plt
+from scipy.interpolate import griddata, RegularGridInterpolator
 
 def generator_zipup(matrix, xy, color):
     matrix[xy[0],xy[1],0, :] = color
@@ -18,6 +19,33 @@ def seed_random_bottom(matrix,color=[0,255,0]):
     y = np.random.randint(0,matrix.shape[1])
     matrix[x,y,0, :] = color
     return matrix
+    
+def postprocess_antialiasing(matrix):
+    # not implemented
+    return matrix
+
+def supersample_antialisaing(matrix_shape, sample_factor: float, func, **kwargs):
+    supersample_shape = tuple(np.array(matrix_shape[:-1])*sample_factor) +(3,)
+    tgrid =  np.meshgrid(
+        np.linspace(-1,1,matrix_shape[0]),
+        np.linspace(-1,1,matrix_shape[1]),
+        np.linspace(-1,1,matrix_shape[2])
+    )
+    target_points = np.vstack([t.flatten() for t in tgrid])
+    sample_grid = (
+        np.linspace(-1,1,supersample_shape[0]),
+        np.linspace(-1,1,supersample_shape[1]),
+        np.linspace(-1,1,supersample_shape[2]))
+
+    matrix_list = func(supersample_shape, **kwargs)
+    out_list = []
+    for matrix in matrix_list:
+        r = RegularGridInterpolator(sample_grid, matrix[...,0], method='linear')(target_points.T)
+        g = RegularGridInterpolator(sample_grid, matrix[...,1], method='linear')(target_points.T)
+        b = RegularGridInterpolator(sample_grid, matrix[...,2], method='linear')(target_points.T)
+        out_list += [np.reshape(np.vstack((r,g,b)).T, matrix_shape).astype('uint8')]
+    return out_list
+    
     
 
 def makeset_wave(matrix_shape, frames=100, coloring='hsv'):
