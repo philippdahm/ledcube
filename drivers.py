@@ -10,6 +10,7 @@ import matplotlib.animation as animation
 from math import prod
         
 import json
+from pathlib import Path
 
 class Driver:
     def __init__(self, matrix_shape:Tuple, n_channels:int, **kwargs):
@@ -210,7 +211,7 @@ class Neopixel(Driver):
     
     
 if __name__ == '__main__':
-    cdir = "/home/tycho/Documents/art/ledcube/"
+    cdir = Path(__file__).parent #"/home/tycho/Documents/art/ledcube/"
     
     shape = (4,3,5) #(12,12,28)
     matrix_shape = shape +(3,)
@@ -219,12 +220,12 @@ if __name__ == '__main__':
     
     vis = Visualise(matrix_shape, n_channels, size, fps=5)
     
-    with open(cdir + 'default_driver_config.json', 'r') as f:
+    with open( Path.joinpath(cdir, 'default_driver_config.json'), 'r') as f:
         config = json.load(f)
 
     neop = Neopixel(matrix_shape, n_channels, config=config)
     
-    # with open(cdir + 'default_driver_config.json', 'w') as f:
+    # with open(Path.joinpath(cdir, 'default_driver_config.json'), 'w') as f:
     #     json.dump(neop.config, f)
         
     matrix_list = []
@@ -241,7 +242,7 @@ if __name__ == '__main__':
     
     a = vis.animate(matrix_list)
     plt.show()
-    vis.save_animated(matrix_list, cdir+"test.gif" )
+    vis.save_animated(matrix_list, Path.joinpath(cdir,"test.gif") )
     
 
     
