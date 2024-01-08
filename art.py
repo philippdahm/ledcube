@@ -10,6 +10,7 @@ def generator_zipup(matrix, xy, color):
 def step_up(matrix):
     m = np.roll(matrix, 1, axis = 2)
     m[...,0,-3:] = np.zeros_like(m[...,0,-3:])
+    m[:,:,0,-3:]
     return m
     
 def seed_random_bottom(matrix,color=[0,255,0]):

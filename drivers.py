@@ -170,13 +170,13 @@ class Neopixel(Driver):
         if not self.check_flag:
             self._check_display(matrix)
             self.check_flag = True
-        if method=="color_single":
+        if method=="color_single": # Works. 84ms, spike to 153ms
             self._display_color_single(matrix)
-        elif method=="24bit_single":
+        elif method=="24bit_single": # Doesnt work,  color needs to be some overwritten type 'uint32_t'
             self._display_24bit_single(matrix)
-        elif method=="color_array":
+        elif method=="color_array": # Doesnt work. deeper in C++ code :(
             self._display_color_array(matrix)
-        elif method=="24bit_array":
+        elif method=="24bit_array": # Doesnt work. deeper in C++ code :(
             self._display_24bit_array(matrix)
         else:
             raise KeyError(f"Method {method} not defined")
@@ -191,15 +191,18 @@ class Neopixel(Driver):
     def _display_24bit_single(self, matrix):
         channels =  self.mat2channels(matrix, connection=self.config['connection'])
         for strip, channel in zip(self.strips, channels):
-            for n, c24b in enumerate(self.rgb_to_24bit(channel)):
-                strip.setPixelColor(n, c24b)
+            # for n, c24b in enumerate(self.rgb_to_24bit(channel)):
+            #     strip.setPixelColor(n, c24b)
+            for n in range(channel.shape[0]):
+                strip.setPixelColorRGB(n, channel[n,0],channel[n,1],channel[n,2])
             strip.show()
             
     def _display_color_array(self, matrix):
         channels = self.mat2channels(matrix, connection=self.config['connection'])
         for strip, channel in zip(self.strips, channels):
             ## attempting to set values directly like line 155 rpi_ws2811x.py
-            strip._leds =  rpi_ws281x.Color(channel[:,0],channel[:,1], channel[:,2])
+            colors = [rpi_ws281x.Color(channel[i,0],channel[i,1], channel[i,2]) for i in range(channel.shape[0])]
+            strip._leds =  colors
             strip.show()
             
     def _display_24bit_array(self, matrix):
