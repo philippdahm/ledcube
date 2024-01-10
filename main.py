@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 import drivers
 import art
+import artset
 from pathlib import Path
 import time
 
@@ -15,37 +16,36 @@ import time
         
         
 
-if __name__ == '__main__':
-    art.make_cube()
+# if __name__ == '__main__':
+
     
+#     cdir = Path(__file__).parent #"/home/tycho/Documents/art/ledcube/"
+#     shape = (12,2,13) #(12,12,28)
+#     matrix_shape = shape +(3,)
+#     size = [0.1,0.1,0.001] # m side lengths of cube
+#     n_channels= 1
+#     config = { ## Default Config
+#                 "pins": [18],
+#                 "freq_hz" : 800000,
+#                 "dma" : 10,
+#                 "PWM channel" : [0],
+#                 "strip type" : None,
+#                 "connection" : 'scan'
+#             }
+#     neop = drivers.Neopixel(matrix_shape, n_channels, config=config)
+#     # neop = drivers.Visualise(matrix_shape, n_channels, size)
     
-    cdir = Path(__file__).parent #"/home/tycho/Documents/art/ledcube/"
-    shape = (12,2,13) #(12,12,28)
-    matrix_shape = shape +(3,)
-    size = [0.1,0.1,0.001] # m side lengths of cube
-    n_channels= 1
-    config = { ## Default Config
-                "pins": [18],
-                "freq_hz" : 800000,
-                "dma" : 10,
-                "PWM channel" : [0],
-                "strip type" : None,
-                "connection" : 'scan'
-            }
-    neop = drivers.Neopixel(matrix_shape, n_channels, config=config)
-    # neop = drivers.Visualise(matrix_shape, n_channels, size)
-    
-    matlist = art.test_matrix(matrix_shape)
-    while True:
-        neop.animate(matlist, wait_ms=25, method="24bit_single")
+#     matlist = art.test_matrix(matrix_shape)
+#     while True:
+#         neop.animate(matlist, wait_ms=25, method="24bit_single")
         
-    while True:
-        matrix = (np.random.random( matrix_shape ) * 256).astype(np.uint8)
-        start = time.time()
-        neop.display(matrix, method="24bit_single")
-        dt = (time.time() - start)
-        print(f"{dt*1e3:0.1f}ms \t {1/dt:0.2f}HZ")
-        time.sleep(1.0)
+#     while True:
+#         matrix = (np.random.random( matrix_shape ) * 256).astype(np.uint8)
+#         start = time.time()
+#         neop.display(matrix, method="24bit_single")
+#         dt = (time.time() - start)
+#         print(f"{dt*1e3:0.1f}ms \t {1/dt:0.2f}HZ")
+#         time.sleep(1.0)
     
     
     
@@ -59,6 +59,40 @@ if __name__ == '__main__':
     n_channels= 2
     
     vis = drivers.Visualise(matrix_shape, n_channels, size, fps=30)
+    
+    matrix_list = art.lighting_strike(matrix_shape, color=[240,200,255])
+    matrix_list = artset.thunderstorm(matrix_shape,lighting_freq=0.5, duration=200)
+    
+    
+    
+    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_thunderstorm.gif") )
+    vis.display(matrix_list[0])
+    
+    if 0: # Cube
+        cube = 0.65*art.make_pointcloud_cube_wireframe()
+        cuber = art.rotate_pointcloud(cube, 45,20,5)
+        # cubec = art.translate_pointcloud()
+        sphere = art.make_pointcloud_sphere()
+        cube2 = 0.7*cuber
+        
+        matrix_list = []
+        for a in np.linspace(0,360,200):
+            cuber = art.rotate_pointcloud(cuber, 0,0.5,2)
+            cube2 = art.rotate_pointcloud(cube2, -1,0,-3)
+            sph = (0.1 + 0.2*np.sin(a/10))*sphere
+            
+            m1 = art.pointcloud_to_matrix(cuber, matrix_shape, tol=0.1)
+            m2 = art.pointcloud_to_matrix(cube2, matrix_shape, tol=0.075, color=[255,0,0])
+            m3 = art.pointcloud_to_matrix(sph, matrix_shape, tol=0.075, color=[0,0,255])
+            
+            matrix = art.add_matrices(m3,art.add_matrices(m1,m2))
+            matrix_list += [matrix]
+        
+        vis.save_animated(matrix_list, Path.joinpath(cdir,"test_cube.gif") )
+
+        vis.display(matrix)
+        cubec = art.translate_pointcloud(cuber, [0.2,0,0])
+    
     matrix = np.zeros(matrix_shape)
     
     matrix = matrix.astype(np.uint8)

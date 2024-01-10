@@ -91,7 +91,7 @@ class Visualise(Driver):
     def _update(self,matrix):
         colors = np.apply_along_axis(rgb_to_hex, -1, matrix)
         # self.ax.clear()
-        return self.ax.scatter(self.x, self.y, self.z, c=colors.flatten())
+        return self.ax.scatter(self.x, self.y, self.z, marker=',', c=colors.flatten())
         
     
     def display_raw_static(self,matrix):
