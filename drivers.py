@@ -11,6 +11,8 @@ from math import prod
         
 import json
 from pathlib import Path
+import time
+
 
 class Driver:
     def __init__(self, matrix_shape:Tuple, n_channels:int, **kwargs):
@@ -72,7 +74,7 @@ class Visualise(Driver):
         self.z = z.flatten()*physical_size[2]/np.max(z)
 
     def display(self, matrix):
-        self.display_raw_static()
+        self.display_raw_static(matrix)
     
     def _setup(self):
         self.fig = plt.figure(figsize=(10,8))
@@ -106,7 +108,7 @@ class Visualise(Driver):
             colors = np.apply_along_axis(rgb_to_hex, -1, matrix_list[i])
             scat.set(color=colors.flatten())
             return scat,
-            
+        
         return animation.FuncAnimation(self.fig, animate, interval=1000/self.fps, blit=True, frames=len(matrix_list))
         
     def save_animated(self, matrix_list, save_dir):
@@ -211,6 +213,11 @@ class Neopixel(Driver):
             ## attempting to set values directly like line 155 rpi_ws2811x.py
             strip._leds =  self.rgb_to_24bit(channel)
             strip.show()
+            
+    def animate(self, matrix_list, wait_ms=50,method="color_single"):
+        for m in matrix_list:
+            self.display(m,method=method)
+            time.sleep(wait_ms/1000.0)
     
     
 if __name__ == '__main__':

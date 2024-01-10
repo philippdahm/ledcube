@@ -3,15 +3,52 @@ import matplotlib as mpl
 from matplotlib import cm
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata, RegularGridInterpolator
+import matplotlib as mpl
 
+def make_pointcloud_cube(N=5):
+    s = np.linspace(0,1,N)
+    f,g = np.meshgrid(s,s)
+    i = f.flatten()
+    r = g.flatten()
+    o = np.ones(N*N)
+    z = np.zeros(N*N)
+    
+    bottom = np.vstack((i,r,z))
+    top = np.vstack((i,r,o))
+    left = np.vstack((i,z,r))
+    right = np.vstack((i,o,r))
+    front = np.vstack((z,i,r))
+    back = np.vstack((o,i,r))
+    return np.hstack((bottom,top,left,right,front,back))
+
+
+
+def wheel(val, map_name = 'hsv'):
+    cmap=mpl.colormaps[map_name]
+    norm=mpl.colors.Normalize(vmin=0,vmax=1)
+    scalarmap = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
+    return scalarmap.to_rgba(val)
+    
+
+def test_matrix(matrix_shape, bright=255):
+    matrix = np.zeros(matrix_shape).astype('uint8')
+    val = np.linspace(0,1,matrix_shape[0]*matrix_shape[1])
+    col = bright* wheel(val)[:,:3]
+    matrix[:,:,0,:] = col.reshape((matrix_shape[0],matrix_shape[1],matrix_shape[3])).astype('uint8')
+    
+    matrix_list = [matrix]
+    for _ in range(matrix_shape[2]):
+        matrix = step_up(matrix)
+        matrix_list += [matrix]
+    return matrix_list
+        
 def generator_zipup(matrix, xy, color):
     matrix[xy[0],xy[1],0, :] = color
     
 def step_up(matrix):
     m = np.roll(matrix, 1, axis = 2)
     m[...,0,-3:] = np.zeros_like(m[...,0,-3:])
-    m[:,:,0,-3:]
-    return m
+    return m.astype(np.uint8)
     
 def seed_random_bottom(matrix,color=[0,255,0]):
     if color == 'random':
