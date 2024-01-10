@@ -6,6 +6,7 @@ from scipy.interpolate import griddata, RegularGridInterpolator
 import scipy.spatial as spatial
 import matplotlib as mpl
 import copy
+from pathlib import Path
 
 def make_pointcloud_cube(N=100):
     s = np.linspace(-1,1,N)
@@ -109,13 +110,13 @@ def wheel(val, map_name = 'hsv'):
     cmap=mpl.colormaps[map_name]
     norm=mpl.colors.Normalize(vmin=0,vmax=1)
     scalarmap = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
-    return scalarmap.to_rgba(val)
+    return (255*np.array(scalarmap.to_rgba(val))[...,:3]).astype('uint8')
     
 
-def test_matrix(matrix_shape, bright=255):
+def test_matrix(matrix_shape, bright=1):
     matrix = np.zeros(matrix_shape).astype('uint8')
     val = np.linspace(0,1,matrix_shape[0]*matrix_shape[1])
-    col = bright* wheel(val)[:,:3]
+    col = bright* wheel(val)
     matrix[:,:,0,:] = col.reshape((matrix_shape[0],matrix_shape[1],matrix_shape[3])).astype('uint8')
     
     matrix_list = [matrix]
@@ -253,3 +254,14 @@ def generate_clouds(matrix_shape, height, periods=[4,4,1], color=[255,255,255], 
         matrix_list += [np.pad(matrix, pad_width=pad, mode='constant', constant_values=0).astype('uint8')]
     return matrix_list
 
+def load_ply(dir):
+    with open(dir,'r') as file:
+        lines = file.readlines()
+        i=0
+        while i < 100:
+            if lines[i] == "end_header\n":
+                break
+            i+=1
+    ply = np.loadtxt(dir,skiprows=i+1).T
+    return ply/max( np.abs(np.min(ply)), np.max(ply))
+    

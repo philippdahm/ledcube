@@ -5,10 +5,12 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import griddata, RegularGridInterpolator
 import scipy.spatial as spatial
 import matplotlib as mpl
+from pathlib import Path
+
 
 import art
 
-def makeset_wave(matrix_shape, frames=100, coloring='hsv'):
+def makeset_wave(matrix_shape, frames=100, coloring='gist_rainbow'):
     x = np.linspace(-1,1, matrix_shape[0])
     y = np.linspace(-1,1, matrix_shape[1])
     xm,ym = np.meshgrid(x,y)
@@ -87,4 +89,22 @@ def thunderstorm(matrix_shape, lighting_freq=0.3, duration=100):
                 j = 1
                 lightning_flag= True        
         matrix_list += [scene]
+    return matrix_list
+
+def face_sweep(matrix_shape, duration=50):
+    face = art.load_ply(Path.joinpath(Path(__file__).parent ,"faceMesh.ply"))
+    # face = art.rotate_pointcloud(face,90,0,0)
+    face = art.translate_pointcloud(face,[0,-0.5,0])
+    matrix_list = []
+    for i in range(duration):
+        face = art.translate_pointcloud(face,[0,0.1,0])
+        matrix_list += [art.pointcloud_to_matrix(face, matrix_shape, tol=0.15)]
+    return matrix_list
+
+def head_rotate(matrix_shape, duration=75):
+    face = art.load_ply   (Path.joinpath(Path(__file__).parent ,"female_head.ply"))
+    matrix_list = []
+    for i in range(duration):
+        face = face = art.rotate_pointcloud(face,0,0,360/duration)
+        matrix_list += [art.pointcloud_to_matrix(face, matrix_shape, tol=0.15, color=list(art.wheel(i/duration,map_name='rainbow')))]
     return matrix_list

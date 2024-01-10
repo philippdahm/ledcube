@@ -64,7 +64,12 @@ if __name__ == '__main__':
     matrix_list = artset.thunderstorm(matrix_shape,lighting_freq=0.5, duration=200)
     
     
-    
+    matrix_list = artset.head_rotate(matrix_shape)
+    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_head.gif") )
+
+    vis.display(matrix_list[0])
+                
+                
     vis.save_animated(matrix_list, Path.joinpath(cdir,"test_thunderstorm.gif") )
     vis.display(matrix_list[0])
     
