@@ -60,6 +60,11 @@ if __name__ == '__main__':
     
     vis = drivers.Visualise(matrix_shape, n_channels, size, fps=30)
     
+    matrix_list = artset.underwater(matrix_shape, duration=100)
+    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_underwater.gif") )
+
+    
+    
     matrix_list = art.lighting_strike(matrix_shape, color=[240,200,255])
     matrix_list = artset.thunderstorm(matrix_shape,lighting_freq=0.5, duration=200)
     

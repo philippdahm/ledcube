@@ -108,3 +108,14 @@ def head_rotate(matrix_shape, duration=75):
         face = face = art.rotate_pointcloud(face,0,0,360/duration)
         matrix_list += [art.pointcloud_to_matrix(face, matrix_shape, tol=0.15, color=list(art.wheel(i/duration,map_name='rainbow')))]
     return matrix_list
+
+def underwater(matrix_shape, duration=100):
+    s1 = art.generate_clouds(matrix_shape, height=2, periods=[10,10,10], color=[70,217,250], duration=duration)
+    s2 = art.generate_clouds(matrix_shape, height=2, periods=[10,10,10], color=[56,93,255], duration=duration)
+    s3 = art.generate_clouds(matrix_shape, height=2, periods=[10,10,10], color=[57,247,244], duration=duration)
+    
+    vol = art.generate_clouds(matrix_shape, height=matrix_shape[2], periods=[10,10,10], color=[0,0,140], duration=duration)
+    return [art.add_multiple_matrices([s1[i],s2[i],s3[i],vol[i]]) for i in range(duration)]
+        
+
+

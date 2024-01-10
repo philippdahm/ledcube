@@ -88,6 +88,11 @@ def add_matrices(m1, m2, method='max'):
     if method =='add':
         return np.maximum(m1+m2,255)
 
+def add_multiple_matrices(mlist, method='max'):
+    out = copy.deepcopy(mlist[0])
+    for m in mlist[1:]:
+        out = add_matrices(out, m, method=method)
+    return out
     
 def pointcloud_to_matrix(ply, matrix_shape, tol=0.05, color=[0,255,0]):
     matrix = np.zeros_like(matrix_shape)
