@@ -58,25 +58,20 @@ if __name__ == '__main__':
     size = [3,3,1.4] # m side lengths of cube
     n_channels= 2
     
-    vis = drivers.Visualise(matrix_shape, n_channels, size, fps=30)
+    vis = drivers.Visualise(matrix_shape, n_channels, size, fps=20)
     
+    
+    matrix_list = artset.fireworks(matrix_shape)
+    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_fireworks.gif") ,dpi = 100)
+
     matrix_list = artset.underwater(matrix_shape, duration=100)
     vis.save_animated(matrix_list, Path.joinpath(cdir,"test_underwater.gif") )
 
-    
-    
-    matrix_list = art.lighting_strike(matrix_shape, color=[240,200,255])
-    matrix_list = artset.thunderstorm(matrix_shape,lighting_freq=0.5, duration=200)
-    
-    
-    matrix_list = artset.head_rotate(matrix_shape)
+    matrix_list = artset.face_sweep(matrix_shape)
     vis.save_animated(matrix_list, Path.joinpath(cdir,"test_head.gif") )
 
-    vis.display(matrix_list[0])
-                
-                
+    matrix_list = artset.thunderstorm(matrix_shape,lighting_freq=0.5, duration=100)
     vis.save_animated(matrix_list, Path.joinpath(cdir,"test_thunderstorm.gif") )
-    vis.display(matrix_list[0])
     
     if 0: # Cube
         cube = 0.65*art.make_pointcloud_cube_wireframe()
@@ -126,3 +121,7 @@ if __name__ == '__main__':
     a = vis.animate(matrix_list2)
     # plt.show()
     vis.save_animated(matrix_list2, Path.joinpath(cdir,"test_wave_supersampled.gif") )
+    
+    
+    ### TODO: preprocess frames & load
+    # TODO: blend mutliple sets together (blend function)

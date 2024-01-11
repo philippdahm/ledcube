@@ -77,7 +77,7 @@ class Visualise(Driver):
         self.display_raw_static(matrix)
     
     def _setup(self):
-        self.fig = plt.figure(figsize=(10,8))
+        self.fig = plt.figure(figsize=(8,8))
         self.ax = self.fig.add_subplot(projection='3d')
         self.ax.set_xlabel('X')
         self.ax.set_ylabel('Y')
@@ -111,10 +111,10 @@ class Visualise(Driver):
         
         return animation.FuncAnimation(self.fig, animate, interval=1000/self.fps, blit=True, frames=len(matrix_list))
         
-    def save_animated(self, matrix_list, save_dir):
+    def save_animated(self, matrix_list, save_dir, bitrate=50, dpi=100):
         ani =self.animate( matrix_list)
-        writer = animation.PillowWriter(fps=self.fps, bitrate=1800)
-        ani.save(save_dir, writer=writer)
+        writer = animation.PillowWriter(fps=self.fps, bitrate=bitrate)
+        ani.save(save_dir, writer=writer, dpi=dpi)
             
         
         

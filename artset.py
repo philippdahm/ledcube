@@ -118,4 +118,32 @@ def underwater(matrix_shape, duration=100):
     return [art.add_multiple_matrices([s1[i],s2[i],s3[i],vol[i]]) for i in range(duration)]
         
 
+def fireworks(matrix_shape, duration=100, spawn_rate=0.25, dt=0.5):
+    pos = np.array([0,0, -1])
+    vel = np.array([0,0,0.5])
+    alive = np.array([10.0])
+    col = np.array([151, 15, 255]).astype('uint8')
+    matrix_list = []
+    for i in range(duration):
+        if np.random.uniform(0,1) < spawn_rate*dt:
+            pos, vel, alive, col = art.new_missile(pos, vel, alive, col,
+                spread=0.05, brightness=0.2, alive_time=np.random.uniform(2,10))
+            
+        pos, vel, alive, col = art.propagate_particles(pos, vel, alive, col, dt=dt, g=-0.1)
+        pos, vel, alive, col = art.explode_missile(pos, vel, alive, col,dt, num_stars=20, vel_burst=0.1)
+        pos, vel, alive, col = art.trim_dead(pos, vel, alive, col, alive_time_limit=-50)
+        matrix_list += [art.render_particles(pos, col, matrix_shape)]
+    return matrix_list
+        
+        
+        
+    
 
+# TODO Fireworks
+# TODO pulsing points
+# TODO linear wave bounce
+# TODO Stars/nebula
+# TODO multilightning
+# TODO  helix
+# TODO review https://github.com/MaltWhiskey/Mega-Cube/blob/master/Software/LED%20Display/src/core/Graphics.h
+# TODO review https://github.com/MaltWhiskey/Mega-Cube/tree/master/Software/LED%20Display/src/space

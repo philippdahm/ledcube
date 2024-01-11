@@ -110,7 +110,6 @@ def pointcloud_to_matrix(ply, matrix_shape, tol=0.05, color=[0,255,0]):
 
 
 
-
 def wheel(val, map_name = 'hsv'):
     cmap=mpl.colormaps[map_name]
     norm=mpl.colors.Normalize(vmin=0,vmax=1)
@@ -258,7 +257,8 @@ def generate_clouds(matrix_shape, height, periods=[4,4,1], color=[255,255,255], 
         pad = ((0,0), (0,0), (matrix_shape[2] - cloud_shape[2],0), (0,0))
         matrix_list += [np.pad(matrix, pad_width=pad, mode='constant', constant_values=0).astype('uint8')]
     return matrix_list
-
+    
+    
 def load_ply(dir):
     with open(dir,'r') as file:
         lines = file.readlines()
@@ -270,3 +270,77 @@ def load_ply(dir):
     ply = np.loadtxt(dir,skiprows=i+1).T
     return ply/max( np.abs(np.min(ply)), np.max(ply))
     
+    
+def render_particles(pos, color, matrix_shape):
+    indexset = np.round( (pos+1)/2 *np.array(matrix_shape[:3]), 0).astype(int)
+
+    matrix = np.zeros(matrix_shape)
+    if len(indexset.shape)<2:
+        indexset = np.minimum(indexset, np.array(matrix_shape[:3])-1)
+        matrix[indexset[0],indexset[1],indexset[2],:] = color
+    else:
+        for k in range(3):
+            indexset[indexset[:,k] == matrix_shape[k]] = matrix_shape[k] -1
+        for j,i in enumerate(indexset):
+            matrix[i[0],i[1],i[2],:] = color[j,:]
+    return matrix.astype('uint8')
+     
+    
+def propagate_particles(pos, vel, alive, col, dt=1, g=-0.01):
+    pos = pos + vel*dt
+    if len(vel.shape) <2:
+        vel = vel+ dt*np.array([0,0,g])
+    else:
+        vel = vel + dt*np.tile([0,0,g], (pos.shape[0],1))
+    alive += -dt
+    return pos, vel, alive, col
+
+def trim_dead(pos,vel,alive,col, alive_time_limit=-10):
+    out_of_bounds = np.where(np.sum(np.abs(pos)>1, axis=-1))[0]
+    timeout = np.where(alive < alive_time_limit)[0]
+    dead = np.unique(np.append(timeout,out_of_bounds))
+    if len(pos.shape) > 1:
+        pos = np.delete(pos, dead, axis=0)
+        vel = np.delete(vel, dead, axis=0)
+        col = np.delete(col, dead, axis=0)
+        alive = np.delete(alive, dead, axis=0)
+    return pos, vel, alive, col
+    
+def explode_missile(pos, vel, alive, col, dt, num_stars=10, vel_burst=0.1, crand="mix"):
+    fuse = (alive+dt >0) * (alive<=0)
+    apogee = (vel[...,2] <=0) * (alive>=0)
+    boundary = (alive>=0)*((pos[...,0] <=-1) + (pos[...,0] >=1) + (pos[...,1]<=-1) + (pos[...,1]>=1))
+    explode = np.where(fuse+apogee+boundary)[0]
+    for i in explode:
+        if len(pos.shape) <2:
+            pos = np.vstack((pos, np.tile(pos, (num_stars,1)) ))
+            vel = np.vstack((vel, vel_burst*np.random.uniform(-1,1,size=(num_stars,3)) ))
+        else:
+            pos = np.vstack((pos, np.tile(pos[i,:], (num_stars,1)) ))
+            vel = np.vstack((vel, np.tile(vel[i,:], (num_stars,1)) + vel_burst*np.random.uniform(-1,1,size=(num_stars,3)) ))
+        if crand == "all":
+            col = np.vstack((col, wheel(np.random.uniform(size=(num_stars)))    ))
+        if crand == "single":
+            col = np.vstack((col, np.tile(wheel(np.random.uniform(), (num_stars,1)))    ))
+        if crand == "mix":
+            if np.random.uniform() <0.3:
+                col = np.vstack((col, wheel(np.random.uniform(size=(num_stars)))    ))
+            else:
+                col = np.vstack((col, np.tile(wheel(np.random.uniform()), (num_stars,1)))    )
+
+
+            
+        alive = np.append(alive, np.zeros(num_stars))
+    pos = np.delete(pos, explode, axis=0)
+    vel = np.delete(vel, explode, axis=0)
+    col = np.delete(col, explode, axis=0)
+    alive = np.delete(alive, explode, axis=0)
+    return pos, vel, alive, col
+    
+
+def new_missile(pos, vel, alive, col, alive_time=10, spread=0.05, brightness=0.5):
+    pos = np.vstack((pos,[ 0.5*np.random.normal(), 0.5*np.random.normal(), -1 ]  ))
+    vel = np.vstack((vel,[ spread*np.random.normal(), spread*np.random.normal(), np.random.uniform(0.4, 0.62) ]))
+    col = np.vstack((col, (brightness*wheel(np.random.uniform(0,1),map_name='hsv')).astype('uint8')  ))
+    alive = np.append(alive,alive_time)
+    return pos, vel, alive, col
