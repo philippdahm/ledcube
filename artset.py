@@ -91,6 +91,22 @@ def thunderstorm(matrix_shape, lighting_freq=0.3, duration=100):
         matrix_list += [scene]
     return matrix_list
 
+def face_bounce(matrix_shape, axis=0, color=[0,255,0]):
+    face = art.load_ply(Path.joinpath(Path(__file__).parent ,"faceMesh.ply"))
+    pos = art.rotate_pointcloud(face,0,0,90).T
+    
+    n = pos.shape[0]
+    vel = np.zeros((n,3))
+    vel[:,axis] = -np.ones(n)*2/(matrix_shape[axis])
+    col = color*np.ones((n,3)).astype('uint8')
+    
+    matrix_list = []
+    for i in range(matrix_shape[axis]*2):
+        pos, vel, _  = art.propagate_particles(pos, vel, dt=1, g=0.0)
+        pos, vel = art.wall_bounce(pos, vel)
+        matrix_list += [art.render_particles(pos, col, matrix_shape)]
+    return matrix_list
+
 def face_sweep(matrix_shape, duration=50):
     face = art.load_ply(Path.joinpath(Path(__file__).parent ,"faceMesh.ply"))
     # face = art.rotate_pointcloud(face,90,0,0)
@@ -129,19 +145,95 @@ def fireworks(matrix_shape, duration=100, spawn_rate=0.25, dt=0.5):
             pos, vel, alive, col = art.new_missile(pos, vel, alive, col,
                 spread=0.05, brightness=0.2, alive_time=np.random.uniform(2,10))
             
-        pos, vel, alive, col = art.propagate_particles(pos, vel, alive, col, dt=dt, g=-0.1)
+        pos, vel, alive, col = art.propagate_particles(pos, vel, alive, dt=dt, g=-0.1)
         pos, vel, alive, col = art.explode_missile(pos, vel, alive, col,dt, num_stars=20, vel_burst=0.1)
         pos, vel, alive, col = art.trim_dead(pos, vel, alive, col, alive_time_limit=-50)
         matrix_list += [art.render_particles(pos, col, matrix_shape)]
     return matrix_list
         
-        
-        
+def bounce_wave(matrix_shape, axis=0, height=2.0, size_factor = 5.0):
+    ms = list(matrix_shape[:-1])
+    del ms[axis]
+    s0 = np.linspace(-1,1,int(size_factor*ms[0]))
+    s1 = np.linspace(-1,1,int(size_factor*ms[1]))
+    p0,p1 = np.meshgrid(s0,s1)
+    pos = -np.ones((int(size_factor**2*np.product(ms)),3))
+    ind = [0,1,2]
+    del ind[axis]
+    pos[:,ind[0]] = p0.flatten()
+    pos[:,ind[1]] = p1.flatten()
     
+    r = np.sqrt(pos[:,ind[0]]**2 + pos[:,ind[1]]**2)
+    s = 0.5
+    z = np.exp(-0.5*(r/s)**2)
+    plt.plot(r,z,'.')
+    pos[:,axis] = height*(z - np.min(z)) -1
+    
+    vel = np.zeros((int(size_factor**2*np.product(ms)),3))
+    vel[:,axis] = np.ones(int(size_factor**2*np.product(ms)))*2/(matrix_shape[axis])
+    
+    matrix_list = []
+    for i in range(matrix_shape[axis]*2):
+        pos, vel, _  = art.propagate_particles(pos, vel, dt=1, g=0.0)
+        pos, vel = art.wall_bounce(pos, vel)
+        col = art.color_points(pos[:,axis], map="rainbow")
+        matrix_list += [art.render_particles(pos, col, matrix_shape)]
+    return matrix_list
 
-# TODO Fireworks
+      
+def spiral_wave(matrix_shape, axis=0, rotations=1.5, points=500):
+    theta = np.linspace(0,rotations*2*np.pi,points)
+    r = 1 - 1.0* theta/(rotations*2*np.pi)
+    x = r*np.cos(theta)
+    y = r*np.sin(theta)
+    
+    pos = -1*np.ones((points,3))
+    ind = [0,1,2]
+    del ind[axis]
+    pos[:,ind[0]] =x
+    pos[:,ind[1]] =y
+    pos[:,axis] =r**2
+    
+    vel = np.zeros((points,3))
+    vel[:,axis] = np.ones(points)*2/(matrix_shape[axis])
+    
+    matrix_list = []
+    for i in range(matrix_shape[axis]*2):
+        pos, vel, _  = art.propagate_particles(pos, vel, dt=1, g=0.0)
+        pos, vel = art.wall_bounce(pos, vel)
+        col = art.color_points(pos[:,axis], map="rainbow")
+        matrix_list += [art.render_particles(pos, col, matrix_shape)]
+    return matrix_list
+
+def particles_in_box(matrix_shape, num_particles=10, duration=300, max_speed=0.1):
+    pos = np.zeros((num_particles,3))
+    vel = max_speed*np.random.uniform(-1,1,size=(num_particles,3))
+    col = (np.random.random( size=(num_particles,3) ) * 256).astype(np.uint8)
+    matrix_list = []
+    for i in range(duration):
+        pos, vel, _  = art.propagate_particles(pos, vel, dt=1, g=0.0)
+        pos, vel = art.wall_bounce(pos, vel)
+        matrix_list += [art.render_particles(pos, col, matrix_shape)]
+    return matrix_list
+        
+        
+def starfield(matrix_shape, duration=200, num_twinkles=150):
+    matrix_list = duration*art.generate_clouds(matrix_shape, height=matrix_shape[2], periods=[10,10,10], color=[34, 0, 48], duration=1)
+    # matrix_list = [np.zeros(matrix_shape).astype('uint8') for _ in range(duration)]
+    for _ in range(num_twinkles):
+        inds = [np.random.randint(0,matrix_shape[i]) for i in range(3)]
+        twinkle = art.twinkle(matrix_shape, inds, 
+                              start=np.random.randint(0,duration), 
+                              ramp_up=np.random.uniform(5,50),
+                              dwell =np.random.uniform(1,50),
+                              ramp_down=np.random.uniform(5,50), 
+                              color=[112, 102, 79], duration=duration)
+        matrix_list =  art.add_matrixlists(matrix_list,twinkle)
+    return matrix_list
+
+# DONE Fireworks
 # TODO pulsing points
-# TODO linear wave bounce
+# DONE linear wave bounce
 # TODO Stars/nebula
 # TODO multilightning
 # TODO  helix

@@ -60,6 +60,21 @@ if __name__ == '__main__':
     
     vis = drivers.Visualise(matrix_shape, n_channels, size, fps=20)
     
+    matrix_list = artset.starfield(matrix_shape)
+    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_starfield.gif") )
+    
+    matrix_list = artset.spiral_wave(matrix_shape)
+    vis.save_animated(matrix_list[100:], Path.joinpath(cdir,"test_spiralwave.gif") )
+    
+    matrix_list = artset.face_bounce(matrix_shape)
+    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_facebounce.gif") )
+            
+    matrix_list = artset.bounce_wave(matrix_shape)
+    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_bouncewave.gif") ,dpi = 100)
+    
+    matrix_list = artset.particles_in_box(matrix_shape)
+    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_particlebox.gif") ,dpi = 100)
+
     
     matrix_list = artset.fireworks(matrix_shape)
     vis.save_animated(matrix_list, Path.joinpath(cdir,"test_fireworks.gif") ,dpi = 100)
@@ -68,7 +83,7 @@ if __name__ == '__main__':
     vis.save_animated(matrix_list, Path.joinpath(cdir,"test_underwater.gif") )
 
     matrix_list = artset.face_sweep(matrix_shape)
-    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_head.gif") )
+    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_facebounce.gif") )
 
     matrix_list = artset.thunderstorm(matrix_shape,lighting_freq=0.5, duration=100)
     vis.save_animated(matrix_list, Path.joinpath(cdir,"test_thunderstorm.gif") )

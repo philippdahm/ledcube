@@ -87,6 +87,11 @@ def add_matrices(m1, m2, method='max'):
         return np.maximum(m1,m2)
     if method =='add':
         return np.maximum(m1+m2,255)
+    
+def add_matrixlists(ml1, ml2, method='max'):
+    if len(ml1) != len(ml2):
+        raise Warning("matrix lists of different length! zipping")
+    return [add_matrices(m1,m2, method=method) for m1,m2 in zip(ml1,ml2)]
 
 def add_multiple_matrices(mlist, method='max'):
     out = copy.deepcopy(mlist[0])
@@ -273,27 +278,28 @@ def load_ply(dir):
     
 def render_particles(pos, color, matrix_shape):
     indexset = np.round( (pos+1)/2 *np.array(matrix_shape[:3]), 0).astype(int)
-
+    indexset = np.maximum(indexset,0)
+    for k in range(3):
+        indexset[:,k] = np.minimum(indexset[:,k], matrix_shape[k]-1)
+        
     matrix = np.zeros(matrix_shape)
     if len(indexset.shape)<2:
-        indexset = np.minimum(indexset, np.array(matrix_shape[:3])-1)
         matrix[indexset[0],indexset[1],indexset[2],:] = color
     else:
-        for k in range(3):
-            indexset[indexset[:,k] == matrix_shape[k]] = matrix_shape[k] -1
         for j,i in enumerate(indexset):
             matrix[i[0],i[1],i[2],:] = color[j,:]
     return matrix.astype('uint8')
      
     
-def propagate_particles(pos, vel, alive, col, dt=1, g=-0.01):
+def propagate_particles(pos, vel, alive=None, dt=1, g=-0.01):
     pos = pos + vel*dt
     if len(vel.shape) <2:
         vel = vel+ dt*np.array([0,0,g])
     else:
         vel = vel + dt*np.tile([0,0,g], (pos.shape[0],1))
-    alive += -dt
-    return pos, vel, alive, col
+    if not type(alive)==type(None):
+        alive += -dt
+    return pos, vel, alive
 
 def trim_dead(pos,vel,alive,col, alive_time_limit=-10):
     out_of_bounds = np.where(np.sum(np.abs(pos)>1, axis=-1))[0]
@@ -305,6 +311,21 @@ def trim_dead(pos,vel,alive,col, alive_time_limit=-10):
         col = np.delete(col, dead, axis=0)
         alive = np.delete(alive, dead, axis=0)
     return pos, vel, alive, col
+
+def wall_bounce(pos,vel, elastic=1):
+    for i in np.where(np.sum(np.abs(pos)>1, axis=-1))[0]:
+        if len(vel.shape) <2:
+            for j in np.where(np.abs(pos) >1):
+                vel[j] *= -elastic
+                pos[j] = np.sign(pos[j])
+        else:
+            for j in np.where(np.abs(pos[i,:]) >1)[0]:
+                vel[i, j] *= -elastic
+                pos[i, j] = np.sign(pos[i, j])
+    return pos, vel
+    
+def color_points(val, map="rainbow"):
+    return  wheel((val+1)/2, map_name=map)
     
 def explode_missile(pos, vel, alive, col, dt, num_stars=10, vel_burst=0.1, crand="mix"):
     fuse = (alive+dt >0) * (alive<=0)
@@ -344,3 +365,17 @@ def new_missile(pos, vel, alive, col, alive_time=10, spread=0.05, brightness=0.5
     col = np.vstack((col, (brightness*wheel(np.random.uniform(0,1),map_name='hsv')).astype('uint8')  ))
     alive = np.append(alive,alive_time)
     return pos, vel, alive, col
+
+def twinkle(matrix_shape, inds, start=0, ramp_up=10, dwell=2, ramp_down=10, color=[112, 102, 79], duration=100):
+    matrix = np.zeros(matrix_shape)
+    brightness = np.interp(
+        np.arange(duration), 
+        np.append(np.cumsum([0,start, ramp_up, dwell, ramp_down]),duration),
+        [0,0,1,1,0,0])
+    
+    matrix_list = []
+    for b in brightness:            
+        matrix[inds[0],inds[1],inds[2]] = b * np.array(color)
+        matrix_list += [matrix.astype('uint8')]
+    return matrix_list
+    
