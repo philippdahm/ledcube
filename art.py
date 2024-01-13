@@ -320,7 +320,7 @@ def render_particles(pos, color, matrix_shape):
 def propagate_particles(pos, vel, alive=None, dt=1, g=-0.01, a=[0,0,0]):
     pos = pos + vel*dt
     if len(vel.shape) <2:
-        vel = vel+ dt*np.array([0,0,g]) + dt*a
+        vel = vel+ dt*np.array([0,0,g]) + dt*np.array(a)
     else:
         vel = vel + dt*np.tile([0,0,g], (pos.shape[0],1))
     if not type(alive)==type(None):

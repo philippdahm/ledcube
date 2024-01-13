@@ -240,7 +240,7 @@ def angler_fish(matrix_shape, duration=200, col=[100, 102, 81], a=0.1, dt=0.2):
     matrix_list = []
     
     t_appear = 0.5
-    d_appear = 1.3
+    d_appear = 1.2
     t_dash = 0.9
     d_dash = 7.5
     
@@ -257,11 +257,17 @@ def angler_fish(matrix_shape, duration=200, col=[100, 102, 81], a=0.1, dt=0.2):
     
     pos = np.array([0,0,0])
     vel = np.array([0,0,0])
-    for s,f in zip(speed,fade):
+    
+    t = dt*np.arange(duration)/2
+    vx = 0.15*(np.sin(t) + np.sin(t/np.pi))
+    vy = 0.15*(np.cos(t+10) + np.sin(np.sqrt(t)*np.pi))
+    vz = 0.15*(np.cos(t/np.pi) + np.sin(t/3))
+    velocities = [np.array([vx[i],vy[i],vz[i]]) for i in range(duration)]
+    for s,f,vel in zip(speed,fade,velocities):
         fish = art.translate_pointcloud(fish,[0,s,0])
         mf = art.pointcloud_to_matrix(fish, matrix_shape, color=[int(f*255),0,0])
-        pos, vel, _  = art.propagate_particles(pos, vel, g=0, dt=dt, a=np.random.uniform(-a,a, size=3))
-        point = art.render_particles(pos, col, matrix_shape)
+        pos, _, _  = art.propagate_particles(pos, vel, g=0, dt=dt)
+        point = art.render_particles(pos, (1-f)*np.array(col), matrix_shape)
         matrix_list += [art.add_matrices(point,mf)]
     return matrix_list
     
