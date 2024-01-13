@@ -231,6 +231,43 @@ def starfield(matrix_shape, duration=200, num_twinkles=150):
         matrix_list =  art.add_matrixlists(matrix_list,twinkle)
     return matrix_list
 
+
+def angler_fish(matrix_shape, duration=200, col=[100, 102, 81], a=0.1, dt=0.2):
+    fish = art.load_ply(Path.joinpath(Path(__file__).parent ,"angler fish.ply"))
+    fish = 5*art.translate_pointcloud(fish,[0,-1,0])
+    fish = art.translate_pointcloud(fish,[0,-1.1,0])
+
+    matrix_list = []
+    
+    t_appear = 0.5
+    d_appear = 1.3
+    t_dash = 0.9
+    d_dash = 7.5
+    
+    dt_appear = duration*(t_dash- t_appear)
+    dt_dash = duration*(1-t_dash)
+
+    speed = np.interp(np.arange(duration),
+                      [0, t_appear*duration, (t_appear+1e-3)*duration, t_dash*duration, (t_dash+1e-3)*duration, duration],
+                      [0, 0,                  d_appear/dt_appear,       d_appear/dt_appear,  d_dash/dt_dash,        d_dash/dt_dash])
+    
+    fade = np.interp(np.arange(duration),
+                     [0, t_appear*duration,t_dash*duration, duration],
+                     [0, 0,              1,                 1])
+    
+    pos = np.array([0,0,0])
+    vel = np.array([0,0,0])
+    for s,f in zip(speed,fade):
+        fish = art.translate_pointcloud(fish,[0,s,0])
+        mf = art.pointcloud_to_matrix(fish, matrix_shape, color=[int(f*255),0,0])
+        pos, vel, _  = art.propagate_particles(pos, vel, g=0, dt=dt, a=np.random.uniform(-a,a, size=3))
+        point = art.render_particles(pos, col, matrix_shape)
+        matrix_list += [art.add_matrices(point,mf)]
+    return matrix_list
+    
+    
+    
+    
 # DONE Fireworks
 # TODO pulsing points
 # DONE linear wave bounce

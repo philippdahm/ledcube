@@ -59,6 +59,12 @@ if __name__ == '__main__':
     n_channels= 2
     
     vis = drivers.Visualise(matrix_shape, n_channels, size, fps=20)
+        
+        
+
+        
+    matrix_list = artset.angler_fish(matrix_shape, col=[255,255,255])
+    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_anglerfish.gif") )
     
     matrix_list = artset.starfield(matrix_shape)
     vis.save_animated(matrix_list, Path.joinpath(cdir,"test_starfield.gif") )

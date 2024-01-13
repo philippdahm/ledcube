@@ -251,6 +251,30 @@ def generate_perlin_noise_3d(shape, res=[3,3,1]):
     n1 = (1-t[:,:,:,1])*n01 + t[:,:,:,1]*n11
     return ((1-t[:,:,:,2])*n0 + t[:,:,:,2]*n1)
 
+def generate_perlin_noise_1d(len, amplitude=1, frequency=1, octaves=1):
+    # result = 0
+    # x = np.arange(len)
+    
+    # n = np.random.uniform(-1,1, size=len+4)
+    
+    
+    # nm2 = n[:-4]
+    # nm1 = n[1:-3]
+    # n0 = n[2:-2]
+    # np1 = n[3:-1]
+    # np2 = n[4:]
+
+    # def __cosine_interp(a, b, x):
+    #     x2 = (1 - np.cos(x * np.pi)) / 2
+    #     return a * (1 - x2) + b * x2
+        
+    # for o in range(octaves):
+    #     xo = x * frequency*2**o
+    #     result += amplitude/(2**o) * __cosine_interp()
+    pass
+
+    
+    
 def generate_clouds(matrix_shape, height, periods=[4,4,1], color=[255,255,255], duration=100):
     cloud_shape = matrix_shape[:2]+ (height,)
     rem = periods[2] - (height+duration)%periods[2] # add remainder so period fits integer
@@ -279,22 +303,24 @@ def load_ply(dir):
 def render_particles(pos, color, matrix_shape):
     indexset = np.round( (pos+1)/2 *np.array(matrix_shape[:3]), 0).astype(int)
     indexset = np.maximum(indexset,0)
-    for k in range(3):
-        indexset[:,k] = np.minimum(indexset[:,k], matrix_shape[k]-1)
+
         
     matrix = np.zeros(matrix_shape)
     if len(indexset.shape)<2:
+        indexset = np.minimum(indexset, np.array(matrix_shape[:-1])-1)
         matrix[indexset[0],indexset[1],indexset[2],:] = color
     else:
+        for k in range(3):
+            indexset[:,k] = np.minimum(indexset[:,k], matrix_shape[k]-1)
         for j,i in enumerate(indexset):
             matrix[i[0],i[1],i[2],:] = color[j,:]
     return matrix.astype('uint8')
      
     
-def propagate_particles(pos, vel, alive=None, dt=1, g=-0.01):
+def propagate_particles(pos, vel, alive=None, dt=1, g=-0.01, a=[0,0,0]):
     pos = pos + vel*dt
     if len(vel.shape) <2:
-        vel = vel+ dt*np.array([0,0,g])
+        vel = vel+ dt*np.array([0,0,g]) + dt*a
     else:
         vel = vel + dt*np.tile([0,0,g], (pos.shape[0],1))
     if not type(alive)==type(None):
