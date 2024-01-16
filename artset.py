@@ -10,7 +10,7 @@ from pathlib import Path
 
 import art
 
-def makeset_wave(matrix_shape, frames=100, coloring='gist_rainbow'):
+def makeset_wave(matrix_shape, duration=100, coloring='gist_rainbow'):
     x = np.linspace(-1,1, matrix_shape[0])
     y = np.linspace(-1,1, matrix_shape[1])
     xm,ym = np.meshgrid(x,y)
@@ -20,7 +20,7 @@ def makeset_wave(matrix_shape, frames=100, coloring='gist_rainbow'):
     
     
     matrix_list = []
-    for t in np.linspace(0,2*np.pi,frames):
+    for t in np.linspace(0,2*np.pi,duration):
         value = base_value*np.cos(t)
         zcurr = (matrix_shape[-2]*((value+1)/2)).astype(int) ## z index of wave
         
@@ -41,7 +41,7 @@ def makeset_wave(matrix_shape, frames=100, coloring='gist_rainbow'):
     return matrix_list
 
 
-def cube_rotates(matrix_shape):
+def cube_rotates(matrix_shape, duration=200):
     cube = 0.65*art.make_pointcloud_cube_wireframe()
     cuber = art.rotate_pointcloud(cube, 45,20,5)
     # cubec = translate_pointcloud()
@@ -49,7 +49,7 @@ def cube_rotates(matrix_shape):
     cube2 = 0.7*cuber
     
     matrix_list = []
-    for a in np.linspace(0,360,200):
+    for a in np.linspace(0,360,duration):
         cuber = art.rotate_pointcloud(cuber, 0,0.5,2)
         cube2 = art.rotate_pointcloud(cube2, -1,0,-3)
         sph = (0.1 + 0.2*np.sin(a/10))*sphere
@@ -65,7 +65,7 @@ def cube_rotates(matrix_shape):
 
 
 def thunderstorm(matrix_shape, lighting_freq=0.3, duration=100):
-    cloudset = art.generate_clouds(matrix_shape, height=3, periods=[5,5,5], color=[100,100,100], duration=duration)
+    cloudset = art.generate_clouds(matrix_shape, height=3, periods=[4,4,5], color=[100,100,100], duration=duration)
 
     lightning_flag= False
     matrix_list = []
@@ -117,12 +117,15 @@ def face_sweep(matrix_shape, duration=50):
         matrix_list += [art.pointcloud_to_matrix(face, matrix_shape, tol=0.15)]
     return matrix_list
 
-def head_rotate(matrix_shape, duration=75):
+def head_rotate(matrix_shape, duration=75, color = [0,0,255]):
     face = art.load_ply   (Path.joinpath(Path(__file__).parent ,"female_head.ply"))
     matrix_list = []
+
     for i in range(duration):
         face = face = art.rotate_pointcloud(face,0,0,360/duration)
-        matrix_list += [art.pointcloud_to_matrix(face, matrix_shape, tol=0.15, color=list(art.wheel(i/duration,map_name='rainbow')))]
+        if type(color)==type(None):
+            color = list(art.wheel(i/duration,map_name='rainbow'))
+        matrix_list += [art.pointcloud_to_matrix(face, matrix_shape, tol=0.15, color=color)]
     return matrix_list
 
 def underwater(matrix_shape, duration=100):
@@ -145,7 +148,7 @@ def fireworks(matrix_shape, duration=100, spawn_rate=0.25, dt=0.5):
             pos, vel, alive, col = art.new_missile(pos, vel, alive, col,
                 spread=0.05, brightness=0.2, alive_time=np.random.uniform(2,10))
             
-        pos, vel, alive, col = art.propagate_particles(pos, vel, alive, dt=dt, g=-0.1)
+        pos, vel, alive = art.propagate_particles(pos, vel, alive, dt=dt, g=-0.1)
         pos, vel, alive, col = art.explode_missile(pos, vel, alive, col,dt, num_stars=20, vel_burst=0.1)
         pos, vel, alive, col = art.trim_dead(pos, vel, alive, col, alive_time_limit=-50)
         matrix_list += [art.render_particles(pos, col, matrix_shape)]
@@ -218,7 +221,7 @@ def particles_in_box(matrix_shape, num_particles=10, duration=300, max_speed=0.1
         
         
 def starfield(matrix_shape, duration=200, num_twinkles=150):
-    matrix_list = duration*art.generate_clouds(matrix_shape, height=matrix_shape[2], periods=[10,10,10], color=[34, 0, 48], duration=1)
+    matrix_list = duration*art.generate_clouds(matrix_shape, height=matrix_shape[2], periods=[3,3,10], color=[34, 0, 48], duration=1)
     # matrix_list = [np.zeros(matrix_shape).astype('uint8') for _ in range(duration)]
     for _ in range(num_twinkles):
         inds = [np.random.randint(0,matrix_shape[i]) for i in range(3)]
@@ -232,7 +235,7 @@ def starfield(matrix_shape, duration=200, num_twinkles=150):
     return matrix_list
 
 
-def angler_fish(matrix_shape, duration=200, col=[100, 102, 81], a=0.1, dt=0.2):
+def angler_fish(matrix_shape, duration=200, col=[100, 102, 81], dt=0.2,periods=8):
     fish = art.load_ply(Path.joinpath(Path(__file__).parent ,"angler fish.ply"))
     fish = 5*art.translate_pointcloud(fish,[0,-1,0])
     fish = art.translate_pointcloud(fish,[0,-1.1,0])
@@ -256,17 +259,18 @@ def angler_fish(matrix_shape, duration=200, col=[100, 102, 81], a=0.1, dt=0.2):
                      [0, 0,              1,                 1])
     
     pos = np.array([0,0,0])
-    vel = np.array([0,0,0])
     
-    t = dt*np.arange(duration)/2
-    vx = 0.15*(np.sin(t) + np.sin(t/np.pi))
-    vy = 0.15*(np.cos(t+10) + np.sin(np.sqrt(t)*np.pi))
-    vz = 0.15*(np.cos(t/np.pi) + np.sin(t/3))
-    velocities = [np.array([vx[i],vy[i],vz[i]]) for i in range(duration)]
+    len_noise = duration+(duration - duration%periods)%periods+periods # octaves in time direction
+    noise = 0.8*art.generate_perlin_noise_3d([12,len_noise,1], res=[2,periods,1])
+    velocities = list(noise[[1,5,9],:duration,0].T)
+        
     for s,f,vel in zip(speed,fade,velocities):
         fish = art.translate_pointcloud(fish,[0,s,0])
         mf = art.pointcloud_to_matrix(fish, matrix_shape, color=[int(f*255),0,0])
-        pos, _, _  = art.propagate_particles(pos, vel, g=0, dt=dt)
+        if s == 0:
+            pos, _, _  = art.propagate_particles(pos, vel, g=0, dt=dt)
+        else:
+            pos *= 0.9
         point = art.render_particles(pos, (1-f)*np.array(col), matrix_shape)
         matrix_list += [art.add_matrices(point,mf)]
     return matrix_list

@@ -214,7 +214,7 @@ class Neopixel(Driver):
             strip._leds =  self.rgb_to_24bit(channel)
             strip.show()
             
-    def animate(self, matrix_list, wait_ms=50,method="color_single"):
+    def animate(self, matrix_list, wait_ms=50, method="color_single"):
         for m in matrix_list:
             self.display(m,method=method)
             time.sleep(wait_ms/1000.0)
