@@ -25,10 +25,10 @@ if __name__ == '__main__':
     matrix_shape = shape +(3,)
     size = [0.1,0.1,0.001] # m side lengths of cube
     config = { ## Default Config
-                "pins": [18, 21, 12, 10],
+                "pins": [18, 21, 12], #10
                 "freq_hz" : 800000,
                 "dma" : 10,
-                "PWM channel" : [0,0,0,0],
+                "PWM channel" : [0,0,0],
                 "strip type" : None,
                 "connection" : 'scan'
             }
@@ -38,6 +38,8 @@ if __name__ == '__main__':
     # neop = drivers.Visualise(matrix_shape, n_channels, size)
     
     matlist = art.test_matrix(matrix_shape, n_channels=n_channels)
+
+    print(f"running test with {n_channels} channels on pins: {config['pins']}")
     while True:
         neop.animate(matlist, wait_ms=25, method="24bit_single")
 

@@ -99,10 +99,10 @@ def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce",
         shape = (12,12,13)
         matrix_shape = shape +(3,)
         config = { ## Default Config
-                "pins": [18],
+                "pins": [18, 21, 12], #10
                 "freq_hz" : 800000,
                 "dma" : 10,
-                "PWM channel" : [0],
+                "PWM channel" : [0,0,0],
                 "strip type" : None,
                 "connection" : 'scan'
             }
