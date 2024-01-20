@@ -214,9 +214,13 @@ class Neopixel(Driver):
             strip._leds =  self.rgb_to_24bit(channel)
             strip.show()
             
-    def animate(self, matrix_list, wait_ms=50, method="color_single"):
+    def animate(self, matrix_list, wait_ms=50, method="color_single", timeit=False):
         for m in matrix_list:
+            if timeit:
+                timei = time.time()
             self.display(m,method=method)
+            if timeit:
+                print(f"\t{1/(time.time()-timei):0.3f}Hz")
             time.sleep(wait_ms/1000.0)
     
     

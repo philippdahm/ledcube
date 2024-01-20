@@ -93,7 +93,7 @@ def load_matrixlist(dir):
     return list(m)
 
 def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce","fireworks","bounce_wave","head_rotate","particles_in_box","starfield","angler_fish"],
-                driver=None, cdir=None, wait=50, method="color_single"):
+                driver=None, cdir=None, wait=50, method="color_single", timeit=False):
     
     if driver==None:
         shape = (12,12,13)
@@ -114,17 +114,17 @@ def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce",
         cdir = Path(__file__).parent
         
     case_set = {case: load_matrixlist(Path.joinpath(cdir,case+'.npy')) for case in cases}
-    
+    print("Loaded cases, running:")
     while True:
         for name, matrix_list in case_set.items():
             print(name)
-            driver.animate(matrix_list, wait_ms=wait, method=method)
+            driver.animate(matrix_list, wait_ms=wait, method=method, timeit=timeit)
         
     
     
 if __name__ == '__main__':
     # generate_matrixlist_caches(matrix_shape=(12,12,13,3), mult=1)
-    run_display(wait=50)
+    run_display(wait=0, timeit=True)
 
     
     cdir = Path(__file__).parent #"/home/tycho/Documents/art/ledcube/"
