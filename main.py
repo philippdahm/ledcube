@@ -124,7 +124,7 @@ def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce",
     
 if __name__ == '__main__':
     # generate_matrixlist_caches(matrix_shape=(12,12,13,3), mult=1)
-    run_display(wait=0, timeit=True)
+    run_display(wait=100, timeit=True)
 
     
     cdir = Path(__file__).parent #"/home/tycho/Documents/art/ledcube/"
