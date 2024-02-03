@@ -12,40 +12,6 @@ from pathlib import Path
 import time
 
 
-
-        
-        
-
-# if __name__ == '__main__':
-
-    
-#     cdir = Path(__file__).parent #"/home/tycho/Documents/art/ledcube/"
-#     shape = (12,2,13) #(12,12,28)
-#     matrix_shape = shape +(3,)
-#     size = [0.1,0.1,0.001] # m side lengths of cube
-#     n_channels= 1
-#     config = { ## Default Config
-#                 "pins": [18],
-#                 "freq_hz" : 800000,
-#                 "dma" : 10,
-#                 "PWM channel" : [0],
-#                 "strip type" : None,
-#                 "connection" : 'scan'
-#             }
-#     neop = drivers.Neopixel(matrix_shape, n_channels, config=config)
-#     # neop = drivers.Visualise(matrix_shape, n_channels, size)
-    
-#     matlist = art.test_matrix(matrix_shape)
-#     while True:
-#         neop.animate(matlist, wait_ms=25, method="24bit_single")
-        
-#     while True:
-#         matrix = (np.random.random( matrix_shape ) * 256).astype(np.uint8)
-#         start = time.time()
-#         neop.display(matrix, method="24bit_single")
-#         dt = (time.time() - start)
-#         print(f"{dt*1e3:0.1f}ms \t {1/dt:0.2f}HZ")
-#         time.sleep(1.0)
     
 def generate_matrixlist_caches(matrix_shape=(12,12,13,3), mult=1):
     cdir = Path(__file__).parent
@@ -127,16 +93,16 @@ def load_matrixlist(dir):
     return list(m)
 
 def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce","fireworks","bounce_wave","head_rotate","particles_in_box","starfield","angler_fish"],
-                driver=None, cdir=None, wait=50, method="color_single"):
+                driver=None, cdir=None, wait=50, method="color_single", timeit=False):
     
     if driver==None:
         shape = (12,12,13)
         matrix_shape = shape +(3,)
         config = { ## Default Config
-                "pins": [18],
+                "pins": [18, 21, 12], #10
                 "freq_hz" : 800000,
                 "dma" : 10,
-                "PWM channel" : [0],
+                "PWM channel" : [0,0,0],
                 "strip type" : None,
                 "connection" : 'scan'
             }
@@ -148,17 +114,17 @@ def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce",
         cdir = Path(__file__).parent
         
     case_set = {case: load_matrixlist(Path.joinpath(cdir,case+'.npy')) for case in cases}
-    
+    print("Loaded cases, running:")
     while True:
         for name, matrix_list in case_set.items():
             print(name)
-            driver.animate(matrix_list, wait_ms=wait, method=method)
+            driver.animate(matrix_list, wait_ms=wait, method=method, timeit=timeit)
         
     
     
 if __name__ == '__main__':
     # generate_matrixlist_caches(matrix_shape=(12,12,13,3), mult=1)
-    run_display(wait=50)
+    run_display(wait=100, timeit=True)
 
     
     cdir = Path(__file__).parent #"/home/tycho/Documents/art/ledcube/"

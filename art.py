@@ -122,9 +122,10 @@ def wheel(val, map_name = 'hsv'):
     return (255*np.array(scalarmap.to_rgba(val))[...,:3]).astype('uint8')
     
 
-def test_matrix(matrix_shape, bright=1):
+def test_matrix(matrix_shape, n_channels=1,  bright=1):
     matrix = np.zeros(matrix_shape).astype('uint8')
-    val = np.linspace(0,1,matrix_shape[0]*matrix_shape[1])
+    val = np.linspace(0,1,matrix_shape[0]*int(matrix_shape[1]/n_channels))
+    val = np.array([val]*n_channels).flatten()
     col = bright* wheel(val)
     matrix[:,:,0,:] = col.reshape((matrix_shape[0],matrix_shape[1],matrix_shape[3])).astype('uint8')
     
