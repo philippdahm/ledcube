@@ -167,8 +167,16 @@ class Neopixel(Driver):
         for strip in self.strips:
             strip.begin()
             
+    def scale_brightness_to_perceived(self, matrix, inverse=False):
+        if inverse:
+            return (matrix * np.log10(1+matrix/255*9)).astype('uint8')
+        else:
+            return (matrix * (1-np.exp(-matrix*0.02))).astype('uint8')
+
         
     def display(self,matrix, method="color_single"):
+        #TODO: scale luminance (RGB) to perceived brightness
+        matrix = self.scale_brightness_to_perceived(matrix)
         if not self.check_flag:
             self._check_display(matrix)
             self.check_flag = True
