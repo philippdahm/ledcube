@@ -99,7 +99,7 @@ def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce",
         shape = (12,12,13)
         matrix_shape = shape +(3,)
         config = { ## Default Config
-                "pins": [18, 21, 12], #10
+                "pins": [18,12,21], #10
                 "freq_hz" : 800000,
                 "dma" : 10,
                 "PWM channel" : [0,0,0],
@@ -124,7 +124,7 @@ def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce",
     
 if __name__ == '__main__':
     # generate_matrixlist_caches(matrix_shape=(12,12,13,3), mult=1)
-    run_display(wait=100, timeit=True)
+    run_display(wait=10, timeit=True)
 
     
     cdir = Path(__file__).parent #"/home/tycho/Documents/art/ledcube/"

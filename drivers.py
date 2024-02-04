@@ -169,17 +169,18 @@ class Neopixel(Driver):
             
         
     def display(self,matrix, method="color_single"):
+
         if not self.check_flag:
             self._check_display(matrix)
             self.check_flag = True
         if method=="color_single": # Works. 84ms, spike to 153ms
-            self._display_color_single(matrix)
+            self._display_color_single(np.flip(matrix, axis=2))
         elif method=="24bit_single": # Doesnt work,  color needs to be some overwritten type 'uint32_t'
-            self._display_24bit_single(matrix)
+            self._display_24bit_single(np.flip(matrix, axis=2))
         elif method=="color_array": # Doesnt work. deeper in C++ code :(
-            self._display_color_array(matrix)
+            self._display_color_array(np.flip(matrix, axis=2))
         elif method=="24bit_array": # Doesnt work. deeper in C++ code :(
-            self._display_24bit_array(matrix)
+            self._display_24bit_array(np.flip(matrix, axis=2))
         else:
             raise KeyError(f"Method {method} not defined")
         
