@@ -167,9 +167,15 @@ class Neopixel(Driver):
         for strip in self.strips:
             strip.begin()
             
+    def scale_brightness_to_perceived(self, matrix, inverse=False):
+        if inverse:
+            return (matrix * np.log10(1+matrix/255*9)).astype('uint8')
+        else:
+            return (matrix * (1-np.exp(-matrix*0.02))).astype('uint8')
+
         
     def display(self,matrix, method="color_single"):
-
+        matrix = self.scale_brightness_to_perceived(matrix)
         if not self.check_flag:
             self._check_display(matrix)
             self.check_flag = True
@@ -215,13 +221,9 @@ class Neopixel(Driver):
             strip._leds =  self.rgb_to_24bit(channel)
             strip.show()
             
-    def animate(self, matrix_list, wait_ms=50, method="color_single", timeit=False):
+    def animate(self, matrix_list, wait_ms=50, method="color_single"):
         for m in matrix_list:
-            if timeit:
-                timei = time.time()
             self.display(m,method=method)
-            if timeit:
-                print(f"\t{1/(time.time()-timei):0.3f}Hz")
             time.sleep(wait_ms/1000.0)
     
     
