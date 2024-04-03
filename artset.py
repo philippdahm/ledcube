@@ -160,7 +160,7 @@ def bounce_wave(matrix_shape, axis=0, height=2.0, size_factor = 5.0):
     s0 = np.linspace(-1,1,int(size_factor*ms[0]))
     s1 = np.linspace(-1,1,int(size_factor*ms[1]))
     p0,p1 = np.meshgrid(s0,s1)
-    pos = -np.ones((int(size_factor**2*np.product(ms)),3))
+    pos = -np.ones((int(size_factor**2*np.prod(ms)),3))
     ind = [0,1,2]
     del ind[axis]
     pos[:,ind[0]] = p0.flatten()
@@ -172,8 +172,8 @@ def bounce_wave(matrix_shape, axis=0, height=2.0, size_factor = 5.0):
     plt.plot(r,z,'.')
     pos[:,axis] = height*(z - np.min(z)) -1
     
-    vel = np.zeros((int(size_factor**2*np.product(ms)),3))
-    vel[:,axis] = np.ones(int(size_factor**2*np.product(ms)))*2/(matrix_shape[axis])
+    vel = np.zeros((int(size_factor**2*np.prod(ms)),3))
+    vel[:,axis] = np.ones(int(size_factor**2*np.prod(ms)))*2/(matrix_shape[axis])
     
     matrix_list = []
     for i in range(matrix_shape[axis]*2):
