@@ -155,7 +155,7 @@ class NeopixelRpi(Driver):
     def rgb_to_24bit(self, matrix):
         ## Using rpi_ws281x.py line 14 to cast 3 by 255int into 24bit colour
         ## ... should mean arbitrary front dimensions, last needs to be 3 (RGB)
-        m = matrix.astype('uint32') ## Need to case to bigger dtype otherwise overflows!
+        m = matrix.astype('uint32') ## Need to cast to bigger dtype otherwise overflows!
         return (m[...,0] << 16) | (m[...,1] << 8) | m[...,2]
         
     def _check_display(self,matrix):
@@ -229,8 +229,37 @@ class NeopixelRpi(Driver):
     
 
 class NeopixelSerial(Driver):
-    def __init__(self, matrix_shape, n_channels, config=None, **kwargs):
-        pass
+    def __init__(self, matrix_shape, serial_list, config=None, **kwargs):
+        import serial
+        serial_list = ['/dev/ttyUSB0']*8 + ['/dev/ttyUSB1']*4
+        self.n_channels = len(serial_list)
+
+        self.serial_addr = np.unique(serial_list)
+        self.ports = [serial.Serial(chan,
+                               baudrate=19200,
+                               bytesize=8,
+                               timeout=10,
+                               ) for chan in self.serial_addr]
+        
+        
+    def write_channel(self, data, channel, channel_per_serial=8):
+        port_index = np.where(self.serial_list[channel]==self.serial_addr)[0][0]
+        ## Can make this a general map later rather than assume these are in order
+        channel_on_board = channel%channel_per_serial 
+        self.ports[port_index].write(channel_on_board.to_bytes() + data.tobytes() + b"\n")
+
+    def read_channel(self, port, size):  ## TODO: code to go onto SCORPIO
+        d = bytearray(port.readline())
+        # d = bytearray(int(7).to_bytes() + data.tobytes() + b"\n") ## Test String
+        channel = d[0]
+        del d[-1]  ## may not nead to do if readline removes eol char
+        return np.frombuffer(d, dtype="uint8", offset=1).reshape(size)
+
+    def close(self):
+        for p in self.ports:
+            p.close()
+
+
 
 if __name__ == '__main__':
     cdir = Path(__file__).parent #"/home/tycho/Documents/art/ledcube/"
