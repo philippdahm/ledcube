@@ -34,7 +34,7 @@ if __name__ == '__main__':
             }
     
     n_channels= len(config["pins"])
-    neop = drivers.Neopixel(matrix_shape, n_channels, config=config)
+    neop = drivers.NeopixelRpi(matrix_shape, n_channels, config=config)
     # neop = drivers.Visualise(matrix_shape, n_channels, size)
     
     matlist = art.test_matrix(matrix_shape, n_channels=n_channels)

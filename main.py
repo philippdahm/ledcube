@@ -108,7 +108,7 @@ def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce",
             }
         size = [3,3,1.4] # m side lengths of cube
         n_channels= len(config["pins"])
-        driver = drivers.Neopixel(matrix_shape, n_channels, config=config)
+        driver = drivers.NeopixelRpi(matrix_shape, n_channels, config=config)
         
     if cdir==None:
         cdir = Path(__file__).parent

@@ -118,7 +118,7 @@ class Visualise(Driver):
         
         
 
-class Neopixel(Driver):
+class NeopixelRpi(Driver):
     def __init__(self, matrix_shape, n_channels, config=None, **kwargs):
         import rpi_ws281x
         import _rpi_ws281x as ws
@@ -227,7 +227,11 @@ class Neopixel(Driver):
             self.display(m,method=method)
             time.sleep(wait_ms/1000.0)
     
-    
+
+class NeopixelSerial(Driver):
+    def __init__(self, matrix_shape, n_channels, config=None, **kwargs):
+        pass
+
 if __name__ == '__main__':
     cdir = Path(__file__).parent #"/home/tycho/Documents/art/ledcube/"
     
@@ -241,7 +245,7 @@ if __name__ == '__main__':
     with open( Path.joinpath(cdir, 'default_driver_config.json'), 'r') as f:
         config = json.load(f)
 
-    neop = Neopixel(matrix_shape, n_channels, config=config)
+    neop = NeopixelRpi(matrix_shape, n_channels, config=config)
     
     # with open(Path.joinpath(cdir, 'default_driver_config.json'), 'w') as f:
     #     json.dump(neop.config, f)
