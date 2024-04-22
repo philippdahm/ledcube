@@ -1,5 +1,4 @@
-import rpi_ws281x
-import _rpi_ws281x as ws
+
 
 from webcolors import rgb_to_hex
 
@@ -100,7 +99,7 @@ class Visualise(Driver):
         self._update(matrix)
         plt.show()
         
-    def animate(self, matrix_list):
+    def animate(self, matrix_list, **kwargs):
         self._setup()
         scat= self._update(matrix_list[0])
         
@@ -111,7 +110,7 @@ class Visualise(Driver):
         
         return animation.FuncAnimation(self.fig, animate, interval=1000/self.fps, blit=True, frames=len(matrix_list))
         
-    def save_animated(self, matrix_list, save_dir, bitrate=50, dpi=100):
+    def save_animated(self, matrix_list, save_dir="", bitrate=50, dpi=100):
         ani =self.animate( matrix_list)
         writer = animation.PillowWriter(fps=self.fps, bitrate=bitrate)
         ani.save(save_dir, writer=writer, dpi=dpi)
@@ -121,6 +120,8 @@ class Visualise(Driver):
 
 class Neopixel(Driver):
     def __init__(self, matrix_shape, n_channels, config=None, **kwargs):
+        import rpi_ws281x
+        import _rpi_ws281x as ws
         super().__init__(matrix_shape, n_channels, **kwargs)
         
         if type(config)==type(None):

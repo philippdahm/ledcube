@@ -1,5 +1,5 @@
 import time
-from rpi_ws281x import *
+# from rpi_ws281x import *
 import argparse
 
 import numpy as np
@@ -123,17 +123,18 @@ def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce",
     
     
 if __name__ == '__main__':
-    # generate_matrixlist_caches(matrix_shape=(12,12,13,3), mult=1)
-    run_display(wait=10, timeit=True)
+    generate_matrixlist_caches(matrix_shape=(12,12,13,3), mult=1)
 
     
     cdir = Path(__file__).parent #"/home/tycho/Documents/art/ledcube/"
-    shape = (20,20,20) #(12,12,28)
+    shape = (12,12,13) #(12,12,28)
     matrix_shape = shape +(3,)
     size = [3,3,1.4] # m side lengths of cube
     n_channels= 2
     
     vis = drivers.Visualise(matrix_shape, n_channels, size, fps=20)
+
+    run_display(wait=10, timeit=True,driver=vis)
 
         
         
