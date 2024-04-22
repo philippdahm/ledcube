@@ -13,6 +13,8 @@ from pathlib import Path
 import time
 
 
+
+
 class Driver:
     def __init__(self, matrix_shape:Tuple, n_channels:int, **kwargs):
     ## Matrix shape: 3 array following: x strings, y strings, LED in string, colour (RGB)
@@ -231,7 +233,10 @@ class NeopixelRpi(Driver):
 class NeopixelSerial(Driver):
     def __init__(self, matrix_shape, serial_list, config=None, **kwargs):
         import serial
-        serial_list = ['/dev/ttyUSB0']*8 + ['/dev/ttyUSB1']*4
+        serial_list = ['/dev/ttyACM1']*8 + ['/dev/ttyACM1']*4
+
+
+        self.serial_list=serial_list
         self.n_channels = len(serial_list)
 
         self.serial_addr = np.unique(serial_list)
@@ -240,6 +245,26 @@ class NeopixelSerial(Driver):
                                bytesize=8,
                                timeout=10,
                                ) for chan in self.serial_addr]
+        
+        self.write_config(matrix_shape)
+        
+
+    def write_config(self, matrix_shape):
+        for port in self.ports:
+            print(f"configuring port {port.port}...")
+            nch = int(self.serial_list(port.port))
+            leds_per_ch = int(np.sum(matrix_shape[:-1])/self.n_channels)
+            
+            ack_flag = False
+            while not ack_flag:
+                port.write(nch.to_bytes()+leds_per_ch.to_bytes()+b'\n')
+                response = bytearray(port.readline())
+                if len(response)>=2:
+                    if response[0]==nch and response[1]==leds_per_ch:
+                        print(f"configuration succesful")
+                        ack_flag = True
+                else:
+                    print(f"retrying... {response}")
         
         
     def write_channel(self, data, channel, channel_per_serial=8):

@@ -17,6 +17,7 @@ rpi_ws281x  = { version = "^5.0.0", optional = true }
 adafruit-circuitpython-neopixel = { version = "^6.3.11", optional = true }
 adafruit-blinka = { version = "^8.38.0", optional = true }
 serial = { version = "^0.0.97", optional = true }
+pyserial = "^3.5"
 
 [tool.poetry.extras]
 rpi = ["rpi_ws281x","adafruit-circuitpython-neopixel","adafruit-blinka"]
