@@ -150,6 +150,7 @@ class Neopixel(Driver):
             ) for i in range(self.n_channels)]
         
         self.check_flag = False
+        self.brightness_scale = "None"
             
     def rgb_to_24bit(self, matrix):
         ## Using rpi_ws281x.py line 14 to cast 3 by 255int into 24bit colour
@@ -167,15 +168,17 @@ class Neopixel(Driver):
         for strip in self.strips:
             strip.begin()
             
-    def scale_brightness_to_perceived(self, matrix, inverse=False):
-        if inverse:
+    def scale_brightness_to_perceived(self, matrix):
+        if self.brightness_scale == "log":
             return (matrix * np.log10(1+matrix/255*9)).astype('uint8')
+        elif self.brightness_scale == "exp":
+            return (matrix * (1-np.exp(-matrix/255*0.02))).astype('uint8')
         else:
-            return (matrix * (1-np.exp(-matrix*0.02))).astype('uint8')
+            return matrix
 
         
-    def display(self,matrix, method="color_single"):
-        matrix = self.scale_brightness_to_perceived(matrix)
+    def display(self,matrix1, method="color_single"):
+        matrix = self.scale_brightness_to_perceived(matrix1)
         if not self.check_flag:
             self._check_display(matrix)
             self.check_flag = True

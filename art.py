@@ -121,7 +121,10 @@ def wheel(val, map_name = 'hsv'):
     scalarmap = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
     return (255*np.array(scalarmap.to_rgba(val))[...,:3]).astype('uint8')
     
-
+def test_brightness(matrix_shape, color=[255,255,255]):
+    matrix = np.ones(matrix_shape)
+    return [(l*matrix).astype('uint8') for l in range(255)]
+    
 def test_matrix(matrix_shape, n_channels=1,  bright=1):
     matrix = np.zeros(matrix_shape).astype('uint8')
     val = np.linspace(0,1,matrix_shape[0]*int(matrix_shape[1]/n_channels))

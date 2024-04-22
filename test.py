@@ -25,10 +25,10 @@ if __name__ == '__main__':
     matrix_shape = shape +(3,)
     size = [0.1,0.1,0.001] # m side lengths of cube
     config = { ## Default Config
-                "pins": [18, 21, 12], #10
+                "pins": [18],#, 21, 12], #10
                 "freq_hz" : 800000,
                 "dma" : 10,
-                "PWM channel" : [0,0,0],
+                "PWM channel" : [0],#,0,0],
                 "strip type" : None,
                 "connection" : 'scan'
             }
@@ -37,11 +37,17 @@ if __name__ == '__main__':
     neop = drivers.Neopixel(matrix_shape, n_channels, config=config)
     # neop = drivers.Visualise(matrix_shape, n_channels, size)
     
-    matlist = art.test_matrix(matrix_shape, n_channels=n_channels)
+    # matlist = art.test_matrix(matrix_shape, n_channels=n_channels)
+    matlist = art.test_brightness(matrix_shape, color=[255,255,255])
 
     print(f"running test with {n_channels} channels on pins: {config['pins']}")
     while True:
-        neop.animate(matlist, wait_ms=25, method="24bit_single")
+        time0 = time.time()
+        for bs in ["None","log","exp"]:
+            neop.brightness_scale = bs
+            neop.animate(matlist, wait_ms=0, method="24bit_single")
+            print(f'{bs} duration:{time.time()-time0:0.3f}')
+
 
 
 
