@@ -276,8 +276,7 @@ def angler_fish(matrix_shape, duration=200, col=[100, 102, 81], dt=0.2,periods=8
     return matrix_list
     
     
-    
-    
+# TODO make a giant pulsating cumming cock beuing ridden by an amyl-sniffing space cowboy    
 # DONE Fireworks
 # TODO pulsing points
 # DONE linear wave bounce

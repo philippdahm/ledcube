@@ -123,8 +123,7 @@ def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce",
     
     
 if __name__ == '__main__':
-    generate_matrixlist_caches(matrix_shape=(12,12,13,3), mult=1)
-
+    # generate_matrixlist_caches(matrix_shape=(12,12,13,3), mult=1)
     
     cdir = Path(__file__).parent #"/home/tycho/Documents/art/ledcube/"
     shape = (12,12,13) #(12,12,28)
@@ -132,9 +131,11 @@ if __name__ == '__main__':
     size = [3,3,1.4] # m side lengths of cube
     n_channels= 2
     
-    vis = drivers.Visualise(matrix_shape, n_channels, size, fps=20)
+    # vis = drivers.Visualise(matrix_shape, n_channels, size, fps=20)
+    serial_list = ['/dev/ttyACM1']*12
+    vis = drivers.NeopixelSerial( matrix_shape, serial_list)
 
-    run_display(wait=10, timeit=True,driver=vis)
+    run_display(wait=10, timeit=True, driver=vis)
 
         
         

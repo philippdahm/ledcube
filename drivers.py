@@ -44,7 +44,7 @@ class Driver:
         
     def mat2channels(self, matrix, connection="scan"):
         if matrix.shape[0]%self.n_channels != 0:
-            raise ValueError("number of rows (x) does not divide nicely into number of channels")
+            raise ValueError(f"number of rows ({matrix.shape[0]}) does not divide nicely into number of channels ({self.n_channels})")
     
         # new_shape =  (matrix.shape[0], matrix.shape[1]*matrix.shape[2], matrix.shape[3]) #stack strings (z) within columns (y) direction 
         # collapsed_rowstrings = np.reshape(matrix, new_shape)
@@ -233,8 +233,6 @@ class NeopixelRpi(Driver):
 class NeopixelSerial(Driver):
     def __init__(self, matrix_shape, serial_list, config=None, **kwargs):
         import serial
-        serial_list = ['/dev/ttyACM1']*8 + ['/dev/ttyACM1']*4
-
 
         self.serial_list=serial_list
         self.n_channels = len(serial_list)
@@ -243,7 +241,7 @@ class NeopixelSerial(Driver):
         self.ports = [serial.Serial(chan,
                                baudrate=19200,
                                bytesize=8,
-                               timeout=10,
+                               timeout=5,
                                ) for chan in self.serial_addr]
         
         self.write_config(matrix_shape)
@@ -252,7 +250,7 @@ class NeopixelSerial(Driver):
     def write_config(self, matrix_shape):
         for port in self.ports:
             print(f"configuring port {port.port}...")
-            nch = int(self.serial_list(port.port))
+            nch = int(self.serial_list.count(port.port))
             leds_per_ch = int(np.sum(matrix_shape[:-1])/self.n_channels)
             
             ack_flag = False
@@ -263,8 +261,10 @@ class NeopixelSerial(Driver):
                     if response[0]==nch and response[1]==leds_per_ch:
                         print(f"configuration succesful")
                         ack_flag = True
+                    else:
+                        print(f"wrong response... {response}")
                 else:
-                    print(f"retrying... {response}")
+                    print(f"No response, retrying... {response}")
         
         
     def write_channel(self, data, channel, channel_per_serial=8):
@@ -283,6 +283,21 @@ class NeopixelSerial(Driver):
     def close(self):
         for p in self.ports:
             p.close()
+
+    def display(self, matrix):
+        ## break matrix into channels
+        channels = self.mat2channels(matrix)
+
+        ## write each channel to serial
+        for c,data in enumerate(channels):
+            self.write_channel(data, c)
+
+
+    def animate(self, matrix_list, wait_ms=0, **kwargs):
+        for m in matrix_list:
+            self.display(m)
+            time.sleep(wait_ms/1000.0)
+
 
 
 
