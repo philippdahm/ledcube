@@ -21,6 +21,13 @@ while True:
     led.value = False
     time.sleep(0.1)
 
-    #test!
-    com = usb_cdc.data
-    serial_neopxl_driver.run_driver(com)
+    ## test!
+    serial_neopxl_driver.test_driver(
+        num_strands=8,
+        strand_length=2*13
+    )
+
+    ## run!
+    # com = usb_cdc.data
+    # serial_neopxl_driver.run_driver(com)
+

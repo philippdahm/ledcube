@@ -1,7 +1,9 @@
+import time
 import usb_cdc
 import board
 import rainbowio
 import adafruit_ticks
+import math
 from adafruit_led_animation.helper import PixelMap
 from adafruit_neopxl8 import NeoPxl8
 
@@ -17,40 +19,44 @@ class Driver_RP2040:
         self.strands = [
             NeoPxl8(
                 board.NEOPIXEL0,
-                self.strand_length,
+                self.strand_length*2,
                 num_strands=2,
                 auto_write=auto_write,
                 brightness=brightness,
             ),
             NeoPxl8(
                 board.NEOPIXEL2,
-                self.strand_length,
+                self.strand_length*2,
                 num_strands=2,
                 auto_write=auto_write,
                 brightness=brightness,
             ),
             NeoPxl8(
                 board.NEOPIXEL4,
-                self.strand_length,
+                self.strand_length*2,
                 num_strands=2,
                 auto_write=auto_write,
                 brightness=brightness,
             ),
             NeoPxl8(
                 board.NEOPIXEL6,
-                self.strand_length,
+                self.strand_length*2,
                 num_strands=2,
                 auto_write=auto_write,
                 brightness=brightness,
             )
             ]
-        
+
     def write_strand(self, channel, data):
         ## set all RGB values of leds (uint8)
         strand = self.strands[int(channel/2)]
         istart = channel%2 * self.strand_length
+        print(f"Channel {channel} PIO {int(channel/2)}:  data{data[0:3]}")
+        #print("writing")
         for i in range(int(len(data)/3)):
+            #print(istart+i)
             strand[istart+i] = (data[3*i],data[3*i+1],data[3*i+2])
+
 
     def show_all(self):
         for s in self.strands:
@@ -78,15 +84,28 @@ def run_driver(com):
             init_flag = True
         else:
             print(f"waiting for init... {d}")
-        
+
 
     ## infinite loop to read and display data
     while True:
         channel, data = read_channel(com)
 
         driver.write_strand(channel, data)
-        
+
         ## once last channel has been written, display leds
         if channel == (num_strands-1):
             driver.show_all()
+
+def test_driver(num_strands, strand_length):
+    driver = Driver_RP2040(num_strands, strand_length)
+    while True:
+        ti = time.monotonic()
+        for i in range(num_strands):
+            data = [255*i/8,255*(1-i/8), 255*math.sin(i*3.14159/8)]*strand_length
+            driver.write_strand(i, data)
+        print(time.monotonic()-ti)
+        time.sleep(10000)
+
+
+
 
