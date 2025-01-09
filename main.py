@@ -93,7 +93,7 @@ def load_matrixlist(dir):
     return list(m)
 
 def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce","fireworks","bounce_wave","head_rotate","particles_in_box","starfield","angler_fish"],
-                driver=None, cdir=None, wait=50, method="color_single", timeit=False):
+                driver=None, cdir=None, wait=10, method="color_single", timeit=False):
     
     if driver==None:
         shape = (12,12,13)
@@ -132,12 +132,11 @@ if __name__ == '__main__':
     n_channels= 2
     
     # vis = drivers.Visualise(matrix_shape, n_channels, size, fps=20)
-    serial_list = ['/dev/ttyACM1']*12
+    serial_list = ['/dev/ttyACM1']*6 +['/dev/ttyACM3']*6
     vis = drivers.NeopixelSerial( matrix_shape, serial_list)
 
-    run_display(wait=10, timeit=True, driver=vis)
+    run_display(wait=1, timeit=True, driver=vis)
 
-        
         
 
         
