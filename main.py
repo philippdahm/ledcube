@@ -92,8 +92,8 @@ def load_matrixlist(dir):
     m = np.load(dir, allow_pickle=True)
     return list(m)
 
-def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce","fireworks","bounce_wave","head_rotate","particles_in_box","starfield","angler_fish"],
-                driver=None, cdir=None, wait=10, method="color_single", timeit=False):
+def run_display(cases=["cube","thunderstorm","fireworks","bounce_wave","wave","head_rotate","face_bounce","head_rotate","particles_in_box","starfield","angler_fish"],
+                driver=None, cdir=None, wait=1, method="color_single", timeit=False):
     
     if driver==None:
         shape = (12,12,13)
@@ -123,9 +123,13 @@ def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce",
     
     
 if __name__ == '__main__':
+    cdir = Path(__file__).parent #"/home/tycho/Documents/art/ledcube/"
+
+
+
+
     # generate_matrixlist_caches(matrix_shape=(12,12,13,3), mult=1)
     
-    cdir = Path(__file__).parent #"/home/tycho/Documents/art/ledcube/"
     shape = (12,12,13) #(12,12,28)
     matrix_shape = shape +(3,)
     size = [3,3,1.4] # m side lengths of cube
@@ -135,7 +139,9 @@ if __name__ == '__main__':
     serial_list = ['/dev/ttyACM1']*6 +['/dev/ttyACM3']*6
     vis = drivers.NeopixelSerial( matrix_shape, serial_list)
 
-    run_display(wait=1, timeit=True, driver=vis)
+    run_display(wait=200, timeit=True, driver=vis,
+        cases = ["thunderstorm","cube","fireworks","bounce_wave","wave","head_rotate","face_bounce","head_rotate","particles_in_box","starfield","angler_fish"]
+    )
 
         
 

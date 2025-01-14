@@ -11,12 +11,40 @@ import artset
 from pathlib import Path
 import time
 
+import serial
+import numpy as np
+
+def test_echo(serial_addr, N=1000, size=1*12*12*3):
+    print(f"init ports {serial_addr}")
+    ports = [serial.Serial(addr,
+                baudrate=115200, ## 115200 #460800
+                bytesize=8,
+                timeout=2,
+                ) for addr in serial_addr]
+    
+    data = np.random.random_integers(0,255,size=size).astype("uint8")
+    result = {a:[] for a in serial_addr}
+    print(f"testing ports ...")
+    for i in range(1000):
+        for addr, port in zip(serial_addr, ports):
+            port.write(data.tobytes()+b"\n") 
+            d = port.readline()[:-1]
+            resp = np.frombuffer(d, dtype="uint8")
+            result[addr] += [resp != data]   
+
+    for k,v in result.items():
+        print(f"{k} : {np.sum(v)/N/size:0.1e}")
+    print(result)
+            
+        
+        
 
 
         
         
 
 if __name__ == '__main__':
+    test_echo(['/dev/ttyACM1','/dev/ttyACM3'])
 
     # LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 

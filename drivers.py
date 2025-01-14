@@ -224,7 +224,7 @@ class NeopixelRpi(Driver):
             strip._leds =  self.rgb_to_24bit(channel)
             strip.show()
             
-    def animate(self, matrix_list, wait_ms=50, method="color_single"):
+    def animate(self, matrix_list, wait_ms=0, method="color_single"):
         for m in matrix_list:
             self.display(m,method=method)
             time.sleep(wait_ms/1000.0)
@@ -239,12 +239,12 @@ class NeopixelSerial(Driver):
 
         self.serial_addr = np.unique(serial_list)
         self.ports = [serial.Serial(chan,
-                               baudrate=460800, ## 115200
+                               baudrate=115200, ## 115200 #460800
                                bytesize=8,
-                               timeout=5,
+                               timeout=2,
                                ) for chan in self.serial_addr]
         self.init_flag = [False]*len(self.ports)
-        self.write_config(matrix_shape)
+        # self.write_config(matrix_shape)
         
 
     def write_config(self, matrix_shape):
@@ -269,12 +269,15 @@ class NeopixelSerial(Driver):
                     print(f"No response, retrying... {response}")
         
         
-    def write_channel(self, data, channel, channel_per_serial=8):
+    def write_channel(self, data, channel, channel_per_serial=6):
         port_index = np.where(self.serial_list[channel]==self.serial_addr)[0][0]
         ## Can make this a general map later rather than assume these are in order
         channel_on_board = channel%channel_per_serial 
+        # print(channel, channel_on_board, port_index)
         self.ports[port_index].write(channel_on_board.to_bytes() + data.tobytes() + b"\n")
+        self.ports[port_index].flush()
         ack = bytearray(self.ports[port_index].readline())[:-1]  # remove eol symbol
+        # self.ports[port_index].flush()
         # print(int.from_bytes(ack), channel_on_board, len(data))
         if ack != channel_on_board.to_bytes():
             print(f"Channel comms out of synch. sent {channel_on_board}, received {int.from_bytes(ack)}")
@@ -300,6 +303,9 @@ class NeopixelSerial(Driver):
         ## write each channel to serial
         for c,data in enumerate(channels):
             self.write_channel(data, c)
+        for p in self.ports:
+            p.reset_input_buffer()
+            p.reset_output_buffer()
 
 
     def animate(self, matrix_list, wait_ms=0, **kwargs):
