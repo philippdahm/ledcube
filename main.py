@@ -93,7 +93,7 @@ def load_matrixlist(dir):
     return list(m)
 
 def run_display(cases=["cube","wave","thunderstorm","head_rotate","face_bounce","fireworks","bounce_wave","head_rotate","particles_in_box","starfield","angler_fish"],
-                driver=None, cdir=None, wait=50, method="color_single", timeit=False):
+                driver=None, cdir=None, wait=10, method="color_single", timeit=False):
     
     if driver==None:
         shape = (12,12,13)
@@ -137,7 +137,6 @@ if __name__ == '__main__':
 
     # run_display(wait=10, timeit=True, driver=vis)
 
-        
         
 
         

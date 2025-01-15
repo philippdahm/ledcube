@@ -233,13 +233,13 @@ class NeopixelRpi(Driver):
 class NeopixelSerial(Driver):
     def __init__(self, matrix_shape, serial_list, config=None, **kwargs):
         import serial
-
+        self.matrix_shape = matrix_shape
         self.serial_list=serial_list
         self.n_channels = len(serial_list)
 
         self.serial_addr = np.unique(serial_list)
         self.ports = [serial.Serial(chan,
-                               baudrate=19200,
+                               baudrate=460800, ## 115200
                                bytesize=8,
                                timeout=5,
                                ) for chan in self.serial_addr]
@@ -251,10 +251,11 @@ class NeopixelSerial(Driver):
         for i,port in enumerate(self.ports):
             print(f"configuring port {port.port}...")
             nch = int(self.serial_list.count(port.port))
-            leds_per_ch = int(np.sum(matrix_shape[:-1])/self.n_channels)
+            leds_per_ch = int(np.product(matrix_shape[:-1])/self.n_channels)
             
             ack_flag = False
             while not ack_flag:
+                print(f"writing {nch} {leds_per_ch}")
                 port.write(nch.to_bytes()+leds_per_ch.to_bytes()+b'\n')
                 response = bytearray(port.readline())
                 if len(response)>=2:
@@ -277,7 +278,8 @@ class NeopixelSerial(Driver):
         if ack != channel_on_board:
             raise RuntimeError(f"Channel comms out of synch. sent {channel_on_board}, received {ack}")
 
-    def read_channel(self, port, size):  ## TODO: code to go onto SCORPIO
+    def read_channel(self, port, sizeporkchop22
+                     ):  ## TODO: code to go onto SCORPIO
         d = bytearray(port.readline())
         # d = bytearray(int(7).to_bytes() + data.tobytes() + b"\n") ## Test String
         channel = d[0]
@@ -299,8 +301,10 @@ class NeopixelSerial(Driver):
 
     def animate(self, matrix_list, wait_ms=0, **kwargs):
         for m in matrix_list:
+            ti = time.monotonic()
             self.display(m)
             time.sleep(wait_ms/1000.0)
+            print(f"FPS: {1/(time.monotonic()-ti):0.2f}",  end='\r')
 
 
 
