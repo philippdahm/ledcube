@@ -6,6 +6,7 @@ import adafruit_ticks
 import math
 from adafruit_led_animation.helper import PixelMap
 from adafruit_neopxl8 import NeoPxl8
+import random
 
 
 
@@ -51,7 +52,7 @@ class Driver_RP2040:
         ## set all RGB values of leds (uint8)
         strand = self.strands[int(channel/2)]
         istart = channel%2 * self.strand_length
-        print(f"Channel {channel} PIO {int(channel/2)}:  data{data[0:3]}")
+        #print(f"Channel {channel} PIO {int(channel/2)}:  data{data[0:3]}")
         #print("writing")
         for i in range(int(len(data)/3)):
             #print(istart+i)
@@ -65,7 +66,7 @@ class Driver_RP2040:
 
 def read_channel(com):
     d = bytearray(com.readline())
-    print(d)
+    #print(d)
     channel = d[0]  #first number is channel index
     return channel, d[1:]
 
@@ -96,15 +97,60 @@ def run_driver(com):
         if channel == (num_strands-1):
             driver.show_all()
 
-def test_driver(num_strands, strand_length):
+def _random_colour(chan, rows, perstring, tc):
+    return [random.randint(0,255) for i in range(3*rows*perstring)]
+
+def _random_string(chan, rows, perstring, tc):
+    data = []
+    for i in range(rows):
+        col = [random.randint(0,255) for i in range(3)]
+        data += col*perstring
+    return data
+
+
+def _raindrop(chan, rows, perstring, tc):
+    data = []
+    for i in range(rows*perstring):
+        if (i-int(tc*60))%5 == 0:
+            data += [100, 100, 255]
+        else:
+            data += [0,0,0]
+    return data
+    
+def _plane(chan, rows, perstring, tc):
+    if (chan-int(tc*40))%5 == 0:
+        return [random.randint(0,255) for i in range(3)]*rows*perstring
+    else:
+        return [0]*3*rows*perstring
+
+
+def _pulse(chan, rows, perstring, tc):
+    b = (math.sin(tc*3.14159*2*5)+1)/2
+    return [int(0*b),int(255*b),int(255*b)]*perstring*rows
+    
+def test_driver(num_strands, rows = 12, perstring = 13, duration =20):
+    strand_length = rows * perstring
     driver = Driver_RP2040(num_strands, strand_length)
+
+    animations = {
+        'random' : _random_colour,
+        'string' : _random_string,
+        'raindrop': _raindrop,
+        'plane': _plane,
+        'pulse': _pulse,
+        }
     while True:
-        ti = time.monotonic()
-        for i in range(num_strands):
-            data = [255*i/8,255*(1-i/8), 255*math.sin(i*3.14159/8)]*strand_length
-            driver.write_strand(i, data)
-        print(time.monotonic()-ti)
-        time.sleep(10000)
+        for name, ani in animations.items():
+            ti = time.monotonic()
+            print(name)
+            tc = 0
+            while tc < 1 :
+                tc = (time.monotonic()-ti)/duration
+                for i in range(num_strands):
+                    data = ani(i, rows, perstring, tc)
+                    driver.write_strand(i, data)
+                driver.show_all()
+                time.sleep(0.01)
 
 
 

@@ -243,12 +243,12 @@ class NeopixelSerial(Driver):
                                bytesize=8,
                                timeout=5,
                                ) for chan in self.serial_addr]
+        self.init_flag = [False]*len(self.ports)
         
-        self.write_config(matrix_shape)
         
 
     def write_config(self, matrix_shape):
-        for port in self.ports:
+        for i,port in enumerate(self.ports):
             print(f"configuring port {port.port}...")
             nch = int(self.serial_list.count(port.port))
             leds_per_ch = int(np.sum(matrix_shape[:-1])/self.n_channels)
@@ -259,8 +259,9 @@ class NeopixelSerial(Driver):
                 response = bytearray(port.readline())
                 if len(response)>=2:
                     if response[0]==nch and response[1]==leds_per_ch:
-                        print(f"configuration succesful")
+                        print(f"configuration successful")
                         ack_flag = True
+                        self.init_flag[i] = True
                     else:
                         print(f"wrong response... {response}")
                 else:
@@ -272,6 +273,9 @@ class NeopixelSerial(Driver):
         ## Can make this a general map later rather than assume these are in order
         channel_on_board = channel%channel_per_serial 
         self.ports[port_index].write(channel_on_board.to_bytes() + data.tobytes() + b"\n")
+        ack = self.ports[port_index].readline()
+        if ack != channel_on_board:
+            raise RuntimeError(f"Channel comms out of synch. sent {channel_on_board}, received {ack}")
 
     def read_channel(self, port, size):  ## TODO: code to go onto SCORPIO
         d = bytearray(port.readline())
