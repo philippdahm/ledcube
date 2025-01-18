@@ -14,26 +14,30 @@ import time
 import serial
 import numpy as np
 
-def test_echo(serial_addr, N=1000, size=1*12*12*3):
+def test_echo(serial_addr, N=300, size=1*12*12*3):
     print(f"init ports {serial_addr}")
     ports = [serial.Serial(addr,
-                baudrate=115200, ## 115200 #460800
+                baudrate=460800, ## 115200 #460800
                 bytesize=8,
                 timeout=2,
                 ) for addr in serial_addr]
     
     data = np.random.random_integers(0,255,size=size).astype("uint8")
+    data[data==10] = 11
     result = {a:[] for a in serial_addr}
     print(f"testing ports ...")
-    for i in range(1000):
+    ti = time.time()
+    for i in range(N):
+        if i%100 == 0:
+            print(f"frame {i}")
         for addr, port in zip(serial_addr, ports):
             port.write(data.tobytes()+b"\n") 
             d = port.readline()[:-1]
             resp = np.frombuffer(d, dtype="uint8")
             result[addr] += [resp != data]   
-
+    print(f"fps: {N/(time.time()-ti)}")
     for k,v in result.items():
-        print(f"{k} : {np.sum(v)/N/size:0.1e}")
+        print(f"{k} : {np.sum(v)/N/size*100:0.3f} percent error")
     print(result)
             
         

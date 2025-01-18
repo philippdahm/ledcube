@@ -275,7 +275,7 @@ class NeopixelSerial(Driver):
         channel_on_board = channel%channel_per_serial 
         # print(channel, channel_on_board, port_index)
         self.ports[port_index].write(channel_on_board.to_bytes() + data.tobytes() + b"\n")
-        self.ports[port_index].flush()
+        # self.ports[port_index].flush()
         ack = bytearray(self.ports[port_index].readline())[:-1]  # remove eol symbol
         # self.ports[port_index].flush()
         # print(int.from_bytes(ack), channel_on_board, len(data))
@@ -303,17 +303,18 @@ class NeopixelSerial(Driver):
         ## write each channel to serial
         for c,data in enumerate(channels):
             self.write_channel(data, c)
-        for p in self.ports:
-            p.reset_input_buffer()
-            p.reset_output_buffer()
+        # for p in self.ports:
+        #     p.reset_input_buffer()
+        #     p.reset_output_buffer()
 
 
     def animate(self, matrix_list, wait_ms=0, **kwargs):
-        for m in matrix_list:
+        for i,m in enumerate(matrix_list):
             ti = time.monotonic()
             self.display(m)
             time.sleep(wait_ms/1000.0)
-            print(f"FPS: {1/(time.monotonic()-ti):0.2f}",  end='\r')
+            if i%10 == 0:
+                print(f"FPS: {1/(time.monotonic()-ti):0.2f}",  end='\r')
 
 
 

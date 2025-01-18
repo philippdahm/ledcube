@@ -39,7 +39,7 @@ while True:
 
     #led.value = False
     # time.sleep(0.1)
-    serial_neopxl_driver.echo(com)
+    # serial_neopxl_driver.echo(com)
     
     serial_neopxl_driver.run_driver_simple(com, name='1')
 

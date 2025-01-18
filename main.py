@@ -89,8 +89,9 @@ def save_matrixlist(matrix_list, dir, fade_in=0, fade_out=0):
     
     
 def load_matrixlist(dir):
-    m = np.load(dir, allow_pickle=True)
-    return list(m)
+    data = np.load(dir, allow_pickle=True)
+    data[data==10] =11
+    return list(data)
 
 def run_display(cases=["cube","thunderstorm","fireworks","bounce_wave","wave","head_rotate","face_bounce","head_rotate","particles_in_box","starfield","angler_fish"],
                 driver=None, cdir=None, wait=1, method="color_single", timeit=False):
@@ -139,7 +140,7 @@ if __name__ == '__main__':
     serial_list = ['/dev/ttyACM1']*6 +['/dev/ttyACM3']*6
     vis = drivers.NeopixelSerial( matrix_shape, serial_list)
 
-    run_display(wait=200, timeit=True, driver=vis,
+    run_display(wait=0, timeit=True, driver=vis,
         cases = ["thunderstorm","cube","fireworks","bounce_wave","wave","head_rotate","face_bounce","head_rotate","particles_in_box","starfield","angler_fish"]
     )
 

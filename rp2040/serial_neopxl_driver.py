@@ -61,7 +61,7 @@ class Driver_RP2040:
         for i in range(n_data):
             #print(istart+i)
             strand[istart+i] = (data[3*i],data[3*i+1],data[3*i+2])
-
+        strand.sow()
 
     def show_all(self):
         for s in self.strands:
@@ -127,13 +127,13 @@ def run_driver_simple(com, name="", num_strands=6, strand_length=12*13):
                 print(f"error writing {channel}, {len(data)}")
             
             ## once last channel has been written, display leds
-            if channel == (num_strands-1):
-                driver.show_all()
+            # if channel == (num_strands-1):
+            #     driver.show_all()
             # time.sleep(0.001)
             ## send ack
             # print(channel.to_bytes(1,1))
             com.write(channel.to_bytes(1,1)+b"\n")
-            com.flush()
+
         else:
             print(f"{name} waiting.. {d}")
 
