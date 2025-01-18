@@ -133,7 +133,6 @@ def run_driver_simple(com, name="", num_strands=6, strand_length=12*13):
             ## send ack
             # print(channel.to_bytes(1,1))
             com.write(channel.to_bytes(1,1)+b"\n")
-
         else:
             print(f"{name} waiting.. {d}")
 

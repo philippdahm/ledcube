@@ -136,9 +136,9 @@ if __name__ == '__main__':
     size = [3,3,1.4] # m side lengths of cube
     n_channels= 2
     
-    # vis = drivers.Visualise(matrix_shape, n_channels, size, fps=20)
-    serial_list = ['/dev/ttyACM1']*6 +['/dev/ttyACM3']*6
-    vis = drivers.NeopixelSerial( matrix_shape, serial_list)
+    vis = drivers.Visualise(matrix_shape, n_channels, size, fps=20)
+    # serial_list = ['/dev/ttyACM1']*6+['/dev/ttyACM2']*6
+    # vis = drivers.NeopixelSerial( matrix_shape, serial_list)
 
     run_display(wait=0, timeit=True, driver=vis,
         cases = ["thunderstorm","cube","fireworks","bounce_wave","wave","head_rotate","face_bounce","head_rotate","particles_in_box","starfield","angler_fish"]
@@ -147,30 +147,31 @@ if __name__ == '__main__':
         
 
         
-    matrix_list = artset.angler_fish(matrix_shape, col=[255,255,255])
-    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_anglerfish.gif") )
+    # matrix_list = artset.angler_fish(matrix_shape, col=[255,255,255])
+    # vis.save_animated(matrix_list, Path.joinpath(cdir,"test_anglerfish.gif") )
     
-    matrix_list = artset.starfield(matrix_shape)
-    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_starfield.gif") )
+    # matrix_list = artset.starfield(matrix_shape)
+    # vis.save_animated(matrix_list, Path.joinpath(cdir,"test_starfield.gif") )
     
-    matrix_list = artset.spiral_wave(matrix_shape)
-    vis.save_animated(matrix_list[100:], Path.joinpath(cdir,"test_spiralwave.gif") )
+    # matrix_list = artset.spiral_wave(matrix_shape)
+    # vis.save_animated(matrix_list, Path.joinpath(cdir,"test_spiralwave.gif") )
     
-    matrix_list = artset.face_bounce(matrix_shape)
-    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_facebounce.gif") )
+    # matrix_list = artset.face_bounce(matrix_shape)
+    # vis.save_animated(matrix_list, Path.joinpath(cdir,"test_facebounce.gif") )
             
-    matrix_list = artset.bounce_wave(matrix_shape)
-    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_bouncewave.gif") ,dpi = 100)
+    # matrix_list = artset.bounce_wave(matrix_shape)
+    # vis.save_animated(matrix_list, Path.joinpath(cdir,"test_bouncewave.gif") ,dpi = 100)
     
-    matrix_list = artset.particles_in_box(matrix_shape)
-    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_particlebox.gif") ,dpi = 100)
+    # matrix_list = artset.particles_in_box(matrix_shape)
+    # vis.save_animated(matrix_list, Path.joinpath(cdir,"test_particlebox.gif") ,dpi = 100)
 
     
-    matrix_list = artset.fireworks(matrix_shape)
-    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_fireworks.gif") ,dpi = 100)
+    # matrix_list = artset.fireworks(matrix_shape)
+    # vis.save_animated(matrix_list, Path.joinpath(cdir,"test_fireworks.gif") ,dpi = 100)
 
-    matrix_list = artset.underwater(matrix_shape, duration=100)
-    vis.save_animated(matrix_list, Path.joinpath(cdir,"test_underwater.gif") )
+    # broken?
+    # matrix_list = artset.underwater(matrix_shape, duration=100)
+    # vis.save_animated(matrix_list, Path.joinpath(cdir,"test_underwater.gif") )
 
     matrix_list = artset.face_sweep(matrix_shape)
     vis.save_animated(matrix_list, Path.joinpath(cdir,"test_facebounce.gif") )

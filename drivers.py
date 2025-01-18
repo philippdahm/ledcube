@@ -259,7 +259,7 @@ class NeopixelSerial(Driver):
                 port.write(nch.to_bytes()+leds_per_ch.to_bytes()+b'\n')
                 response = bytearray(port.readline())
                 if len(response)>=2:
-                    if int(response[0])==nch and int(response[1])==leds_per_ch:
+                    if response[0]==nch and response[1]==leds_per_ch:
                         print(f"configuration successful")
                         ack_flag = True
                         self.init_flag[i] = True
